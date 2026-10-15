@@ -1,0 +1,177 @@
+"""HTTP presentation for chatbot sessions and workflow-backed turns."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from anyio import to_thread
+from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile
+
+from backend.domains.chatbot.application import ChatApiServices, ChatSuggestionService
+from backend.domains.chatbot.domain import UnsupportedChatAttachmentError
+
+from .schemas import (
+    ChatAttachmentResponse,
+    ChatMessageCreatedResponse,
+    ChatRunSyncResponse,
+    ChatSessionListResponse,
+    ChatSessionResponse,
+    ChatSuggestionListResponse,
+    CreateMessageRequest,
+    CreateSessionRequest,
+    DeleteSessionResponse,
+    RenameSessionRequest,
+)
+
+_UPLOAD_READ_LIMIT = 20 * 1024 * 1024 + 1
+
+
+def _authenticated_client_id(request: Request, fallback: str) -> str:
+    """Use middleware-owned identity without coupling the domain to the API shell."""
+
+    principal = getattr(request.state, "auth_principal", None)
+    client_id = getattr(principal, "client_id", None)
+    return client_id if isinstance(client_id, str) and client_id else fallback
+
+
+def _create_suggestion_router(service: ChatSuggestionService) -> APIRouter:
+    router = APIRouter()
+
+    @router.get("/suggestions", response_model=ChatSuggestionListResponse)
+    def list_suggestions() -> dict[str, list[str]]:
+        return {"questions": service.refresh_if_due()}
+
+    @router.post("/suggestions/refresh", response_model=ChatSuggestionListResponse)
+    def refresh_suggestions() -> dict[str, list[str]]:
+        return {"questions": service.refresh_if_due(force=True)}
+
+    return router
+
+
+def create_chat_router(
+    services: ChatApiServices,
+    *,
+    prefix: str = "/chat",
+) -> APIRouter:
+    router = APIRouter(prefix=prefix, tags=["Chat"])
+    conversations = services.conversations
+
+    @router.get("/sessions", response_model=ChatSessionListResponse)
+    def list_sessions(
+        request: Request,
+        client_id: str = Query(min_length=12, max_length=128),
+    ) -> dict[str, Any]:
+        return conversations.list_sessions(_authenticated_client_id(request, client_id))
+
+    router.include_router(_create_suggestion_router(services.suggestions))
+
+    @router.post("/sessions", status_code=201, response_model=ChatSessionResponse)
+    def create_session(payload: CreateSessionRequest, request: Request) -> dict[str, Any]:
+        return conversations.create_session(
+            _authenticated_client_id(request, payload.client_id)
+        )
+
+    @router.get("/sessions/{session_id}", response_model=ChatSessionResponse)
+    def get_session(
+        session_id: str,
+        request: Request,
+        client_id: str = Query(min_length=12, max_length=128),
+    ) -> dict[str, Any]:
+        return conversations.require_session(
+            session_id,
+            _authenticated_client_id(request, client_id),
+        )
+
+    @router.patch("/sessions/{session_id}", response_model=ChatSessionResponse)
+    def rename_session(
+        session_id: str,
+        payload: RenameSessionRequest,
+        request: Request,
+    ) -> dict[str, Any]:
+        return conversations.rename_session(
+            session_id,
+            _authenticated_client_id(request, payload.client_id),
+            payload.title,
+        )
+
+    @router.delete("/sessions/{session_id}", response_model=DeleteSessionResponse)
+    def delete_session(
+        session_id: str,
+        request: Request,
+        client_id: str = Query(min_length=12, max_length=128),
+    ) -> dict[str, str]:
+        return conversations.delete_session(
+            session_id,
+            _authenticated_client_id(request, client_id),
+        )
+
+    @router.post(
+        "/sessions/{session_id}/attachments",
+        status_code=201,
+        response_model=ChatAttachmentResponse,
+    )
+    async def upload_attachment(
+        session_id: str,
+        request: Request,
+        client_id: str = Form(min_length=12, max_length=128),
+        file: UploadFile = File(...),
+    ) -> dict[str, Any]:
+        client_id = _authenticated_client_id(request, client_id)
+        await to_thread.run_sync(conversations.require_session, session_id, client_id)
+        try:
+            content = await file.read(_UPLOAD_READ_LIMIT)
+            stored = await to_thread.run_sync(
+                lambda: services.attachments.save(
+                    file_name=file.filename or "",
+                    content_type=file.content_type,
+                    content=content,
+                )
+            )
+        except UnsupportedChatAttachmentError as error:
+            raise HTTPException(status_code=415, detail=error.message) from error
+        finally:
+            await file.close()
+        return await to_thread.run_sync(
+            lambda: conversations.create_attachment(
+                session_id,
+                attachment_id=stored.attachment_id,
+                file_name=stored.file_name,
+                content_type=stored.content_type,
+                file_size=stored.file_size,
+                storage_path=stored.storage_path,
+                extracted_text=stored.extracted_text,
+            )
+        )
+
+    @router.post(
+        "/sessions/{session_id}/messages",
+        status_code=202,
+        response_model=ChatMessageCreatedResponse,
+    )
+    def create_message(
+        session_id: str,
+        payload: CreateMessageRequest,
+        request: Request,
+    ) -> dict[str, Any]:
+        return conversations.create_message(
+            session_id,
+            _authenticated_client_id(request, payload.client_id),
+            payload.content,
+            payload.attachment_id,
+        )
+
+    @router.get("/runs/{run_id}", response_model=ChatRunSyncResponse)
+    def sync_run(
+        run_id: str,
+        request: Request,
+        client_id: str = Query(min_length=12, max_length=128),
+    ) -> dict[str, Any]:
+        return conversations.sync_run(
+            run_id,
+            _authenticated_client_id(request, client_id),
+        )
+
+    return router
+
+
+__all__ = ["create_chat_router"]

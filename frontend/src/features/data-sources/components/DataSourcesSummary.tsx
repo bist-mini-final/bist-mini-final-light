@@ -1,0 +1,86 @@
+import { Database, Layers, Server, Sparkles } from 'lucide-react';
+import { Surface } from '../../../shared/ui';
+import type { DbStatusInfo, VectorIndexInfo } from '../types';
+
+interface SummaryProps {
+  indexes: VectorIndexInfo[];
+  dbStatus: DbStatusInfo | null;
+}
+
+/**
+ * Renders a summary of vector data sources, embedding usage, database status, and models.
+ *
+ * @param indexes - Vector data source indexes to summarize
+ * @param dbStatus - Current database connection and pgvector status
+ */
+export function DataSourcesSummary({ indexes, dbStatus }: SummaryProps) {
+  const totalChunks = indexes.reduce((sum, idx) => sum + (idx.document_count || 0), 0);
+  const models = Array.from(new Set(indexes.map((i) => i.model).filter(Boolean)));
+  const dimensions = Array.from(new Set(indexes.map((i) => i.dimension).filter(Boolean)));
+
+  return (
+    <section className="ds-summary-grid">
+      <Surface as="article" className="ds-summary-card">
+        <div className="ds-summary-card__header">
+          <span>pgvector 컬렉션</span>
+          <span className="ds-summary-card__icon ds-summary-card__icon--blue">
+            <Database size={17} />
+          </span>
+        </div>
+        <div className="ds-summary-card__value">{indexes.length}<span>개</span></div>
+        <small className="ds-summary-card__caption">
+          langchain_pg_collection 등록
+        </small>
+      </Surface>
+
+      <Surface as="article" className="ds-summary-card">
+        <div className="ds-summary-card__header">
+          <span>총 벡터 임베딩 청크</span>
+          <span className="ds-summary-card__icon ds-summary-card__icon--green">
+            <Layers size={17} />
+          </span>
+        </div>
+        <div className="ds-summary-card__value">{totalChunks.toLocaleString()}<span>청크</span></div>
+        <small className="ds-summary-card__caption">
+          langchain_pg_embedding 저장
+        </small>
+      </Surface>
+
+      <Surface as="article" className="ds-summary-card">
+        <div className="ds-summary-card__header">
+          <span>데이터베이스 엔진</span>
+          <span className="ds-summary-card__icon ds-summary-card__icon--purple">
+            <Server size={17} />
+          </span>
+        </div>
+        <div className="ds-summary-card__value ds-summary-card__value--text">
+          {dbStatus?.connected ? 'PostgreSQL 16' : '연결 대기 중'}
+        </div>
+        <small className="ds-summary-card__caption">
+          {dbStatus?.connected
+            ? `pgvector ${dbStatus.pgvector_version || '0.8.6'} · HNSW 인덱싱`
+            : 'PostgreSQL 서비스와 DB 연결 설정 확인'}
+        </small>
+      </Surface>
+
+      <Surface as="article" className="ds-summary-card">
+        <div className="ds-summary-card__header">
+          <span>임베딩 표준 모델</span>
+          <span className="ds-summary-card__icon ds-summary-card__icon--amber">
+            <Sparkles size={17} />
+          </span>
+        </div>
+        <div className="ds-summary-card__value ds-summary-card__value--text">
+          {models.length > 0 ? models[0].split('/').pop() : '인덱스 미등록'}
+        </div>
+        <small className="ds-summary-card__caption">
+          {models.length > 1
+            ? `외 ${models.length - 1}개 모델 사용 중`
+            : dimensions.length > 0
+              ? `${dimensions.join(' / ')}차원 · 질의 모델 자동 동기화`
+              : '인덱스 모델·차원 자동 동기화'}
+        </small>
+      </Surface>
+    </section>
+  );
+}

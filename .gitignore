@@ -1,0 +1,91 @@
+# Python & Bytecode Cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$$py.class
+*.pyc
+*.pyo
+*.pyd
+
+# Testing & Test Caches
+.pytest_cache/
+**/.pytest_cache/
+.mypy_cache/
+**/.mypy_cache/
+.ruff_cache/
+**/.ruff_cache/
+.hypothesis/
+**/.hypothesis/
+.cache/
+**/.cache/
+.tox/
+.nox/
+
+# Coverage & Test Reports
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+*.py,cover
+htmlcov/
+nosetests.xml
+junit.xml
+pytestdebug.log
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+.tools/
+
+# Local environment
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Frontend / build output
+frontend/node_modules/
+frontend/.vite/
+frontend/dist/
+.vite/
+# Root dist/ is the checked-in frontend build for Python-only learners.
+
+# Logs & Runtime output
+*.log
+**/*.log
+*.log.*
+**/*.log.*
+logs/
+**/logs/
+*.log.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+outputs/
+output/
+data/runs/
+data/cache/
+data/artifacts/
+data/source_files/
+data/chat_uploads/
+data/workflows/
+data/benchmark_sets/
+tmp/
+.tmp/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Evaluation / Questions data
+*notion_question*.json
+data/eval/results/
+!/.github/scripts/
+.claude/
+.codex_tmp/
