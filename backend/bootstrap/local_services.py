@@ -89,6 +89,8 @@ class LocalServices:
         logs.mkdir(exist_ok=True)
         log = (logs / f"llama-{role}.log").open("ab")
         environment = dict(os.environ)
+        if not embedding:
+            environment.setdefault("LLAMA_ARG_REASONING", "off")
         cuda_dll_dir = environment.get("LLAMA_CPP_CUDA_DLL_DIR")
         if cuda_dll_dir:
             environment["PATH"] = cuda_dll_dir + os.pathsep + environment.get("PATH", "")

@@ -55,7 +55,7 @@ export const dataSourceApi = {
   async uploadFile(
     file: File,
     autoIngest: boolean = true,
-    model: string = 'text-embedding-3-small',
+    model: string = '',
     batchSize: number = 2048,
     signal?: AbortSignal
   ): Promise<{
@@ -66,7 +66,7 @@ export const dataSourceApi = {
     formData.append('file', file);
 
     const response = await requestResponse(
-      `/api/data-sources/files/upload?auto_ingest=${autoIngest}&model=${encodeURIComponent(model)}&batch_size=${batchSize}`,
+      `/api/data-sources/files/upload?auto_ingest=${autoIngest}${model ? `&model=${encodeURIComponent(model)}` : ''}&batch_size=${batchSize}`,
       {
         method: 'POST',
         body: formData,

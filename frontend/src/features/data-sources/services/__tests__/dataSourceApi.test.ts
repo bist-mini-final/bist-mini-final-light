@@ -25,7 +25,7 @@ describe('dataSourceApi', () => {
     });
   });
 
-  it('uses the low-cost embedding model for uploads unless explicitly overridden', async () => {
+  it('uses the configured server embedding model unless explicitly overridden', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(
       JSON.stringify({}),
       { status: 200, headers: { 'Content-Type': 'application/json' } },
@@ -37,8 +37,13 @@ describe('dataSourceApi', () => {
     expect(fetchMock).toHaveBeenCalledOnce();
     const request = fetchMock.mock.calls[0]?.[0];
     expect(request).toBeInstanceOf(Request);
-    expect(request instanceof Request ? request.url : '').toContain(
-      'model=text-embedding-3-small',
-    );
+    expect(new URL((request as Request).url).searchParams.has('model')).toBe(false);
+  });
+
+  it('preserves an explicitly selected local model on upload', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('{}', { headers: { 'Content-Type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchMock);
+    await dataSourceApi.uploadFile(new File(['sheet'], 'sample.xlsx'), true, 'llamacpp:bge-m3');
+    expect(new URL((fetchMock.mock.calls[0][0] as Request).url).searchParams.get('model')).toBe('llamacpp:bge-m3');
   });
 });
