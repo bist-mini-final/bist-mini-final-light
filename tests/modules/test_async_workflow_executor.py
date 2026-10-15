@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from contextvars import ContextVar
 from threading import Barrier, get_ident
 from unittest.mock import patch
 
@@ -31,7 +32,9 @@ from modules.registry import BaseModuleRegistry
 def test_worker_session_keeps_one_loop_across_batches_and_cleanup(tmp_path) -> None:
     executor = WorkflowExecutor(BaseModuleRegistry(EmbeddingArtifactStore(tmp_path / "artifacts")), RunStore(), ResultCache())
     loops = []
+    lease = ContextVar[str | None]("test-worker-lease", default=None)
     async def batch(run_id, node_ids):
+        assert lease.get() == "owned-lease"
         loops.append(asyncio.get_running_loop())
         await asyncio.sleep(0)
         return (run_id, node_ids)
@@ -39,14 +42,18 @@ def test_worker_session_keeps_one_loop_across_batches_and_cleanup(tmp_path) -> N
         assert asyncio.get_running_loop() is loops[0]
     with patch.object(executor, "execute_scheduled_batch_async", side_effect=batch):
         with executor.batch_execution_session() as runner:
+            token = lease.set("owned-lease")
             executor.execute_scheduled_batch("run", ("decompose",))
             executor.execute_scheduled_batch("run", ("read",))
             runner.run(cleanup())
             assert loops[0] is loops[1]
             assert not loops[0].is_closed()
+            lease.reset(token)
         assert loops[0].is_closed()
         with executor.batch_execution_session():
+            token = lease.set("owned-lease")
             executor.execute_scheduled_batch("next-run", ("read",))
+            lease.reset(token)
         assert loops[2] is not loops[0]
 
 

@@ -2,6 +2,7 @@ import asyncio
 import logging
 from collections.abc import Iterator
 from contextlib import contextmanager
+from contextvars import copy_context
 from threading import Lock, RLock
 from typing import Any, Dict, List, Mapping, Optional, Set, Tuple
 
@@ -143,7 +144,7 @@ class WorkflowExecutor:
     ) -> WorkflowRun:
         """Execute one topological generation through an asyncio TaskGroup."""
         if self._sync_runner is not None:
-            return self._sync_runner.run(self.execute_scheduled_batch_async(run_id, node_ids))
+            return self._sync_runner.run(self.execute_scheduled_batch_async(run_id, node_ids), context=copy_context())
         return asyncio.run(self.execute_scheduled_batch_async(run_id, node_ids))
 
     @contextmanager
