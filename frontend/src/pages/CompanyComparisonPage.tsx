@@ -58,7 +58,13 @@ export function CompanyComparisonPage() {
 
   return (
     <section className="financial-league-page" aria-label="기업 랭킹 리그 화면">
-      <h1 className="page-visually-hidden">기업 비교</h1>
+      <header className="comparison-page-heading">
+        <div>
+          <h1>기업 비교</h1>
+          <p>재무 지표를 살펴보고, 두 기업을 선택해 성장과 수익성을 비교하세요.</p>
+        </div>
+        <span>{filteredCompanies.length}개 기업</span>
+      </header>
 
       {state.data.snapshot.status === 'partial' && (
         <section className="comparison-state-card comparison-state-card--error" role="status">

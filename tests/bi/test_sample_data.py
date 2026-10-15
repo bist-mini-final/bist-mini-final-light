@@ -18,6 +18,9 @@ from backend.domains.bi.domain.models import (
     MetricStatus,
     SnapshotStatus,
 )
+from backend.domains.company_comparison.application.snapshot_builder import (
+    CompanyComparisonSnapshotBuilder,
+)
 
 DIRECTORY = Path(__file__).resolve().parents[2] / "examples" / "bi"
 MANIFEST = read_sample_manifest(DIRECTORY)
@@ -117,3 +120,14 @@ def test_changed_workbook_cannot_be_published_as_verified_sample(tmp_path: Path)
     )
     with pytest.raises(ValueError, match="hash"):
         build_sample_snapshot(tmp_path, MANIFEST, company, request_for(company))
+
+
+def test_all_public_samples_are_eligible_for_company_comparison() -> None:
+    now = datetime(2026, 10, 16, tzinfo=UTC)
+    snapshots = tuple(
+        build_sample_snapshot(DIRECTORY, MANIFEST, company, request_for(company), now=now)
+        for company in MANIFEST["companies"]
+    )
+    comparison = CompanyComparisonSnapshotBuilder().build(snapshots)
+    assert len(comparison.companies) == 18
+    assert not comparison.exclusions

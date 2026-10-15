@@ -4,6 +4,7 @@
    ========================================================================= */
 
 .financial-league-page {
+  container: comparison / inline-size;
   --bm-primary: #107c41;
   --bm-primary-dark: #0d6336;
   --bm-primary-light: #effaf4;
@@ -34,6 +35,17 @@
   color: var(--bm-text-main);
   box-sizing: border-box;
 }
+
+.comparison-page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0.125rem;
+}
+.comparison-page-heading h1 { margin: 0; color: var(--text-strong); font-size: 1.5rem; font-weight: 750; letter-spacing: -0.035em; }
+.comparison-page-heading p { margin: 0.4rem 0 0; color: var(--text-muted); font-size: 0.8125rem; line-height: 1.6; }
+.comparison-page-heading > span { flex: none; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); padding: 0.4rem 0.7rem; font-size: 0.75rem; color: var(--text-secondary); }
 
 .comparison-state-card {
   display: flex;
@@ -190,15 +202,9 @@
    ========================================================================= */
 .league-main-grid {
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(400px, 3fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   align-items: start;
-}
-
-@media (max-width: 1600px) {
-  .league-main-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* =========================================================================
@@ -218,8 +224,9 @@
 .league-table-scroll-wrap {
   width: 100%;
   overflow-x: auto;
-  max-height: none;
-  overflow-y: visible;
+  max-height: min(65dvh, 42rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
 }
 
@@ -392,9 +399,11 @@
    4. Right Side: Top-Performer Spotlight Cards & Metric Distribution
    ========================================================================= */
 .league-side-column {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  min-width: 0;
+  gap: 14px;
 }
 
 
@@ -408,11 +417,14 @@
   font-size: 11.5px;
   color: #64746b;
   padding: 4px 6px;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
 }
 .footer-left-links {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 .footer-link-item {
   display: inline-flex;
@@ -422,20 +434,23 @@
 .footer-link-item svg { color: var(--bm-primary); }
 .footer-left-links .footer-link-item:nth-child(2) svg { color: var(--bm-secondary); }
 
-@media (max-width: 1600px) {
+@container comparison (min-width: 1280px) {
+  .league-main-grid { grid-template-columns: minmax(0, 1fr) 340px; }
   .league-side-column {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-@media (max-width: 1100px) {
+@container comparison (max-width: 760px) {
   .league-side-column { grid-template-columns: minmax(0, 1fr); }
+  .league-top-filter-bar { grid-template-columns: minmax(0, 1fr); grid-template-areas: "quick" "status"; }
+  .filter-section-block:nth-child(2) { justify-self: start; }
 }
 
 @media (max-width: 767px) {
   .financial-league-page { gap: 0.75rem; }
+  .comparison-page-heading { align-items: flex-start; }
+  .comparison-page-heading h1 { font-size: 1.35rem; }
   .league-top-filter-bar {
     display: flex;
     align-items: stretch;
@@ -532,7 +547,7 @@
     background: var(--surface-subtle);
     padding: 0.55rem 0.6rem;
   }
-  .league-mobile-company__metrics dt { color: var(--text-muted); font-size: 0.59rem; }
+  .league-mobile-company__metrics dt { color: var(--text-muted); font-size: 0.6875rem; }
   .league-mobile-company__metrics dd {
     overflow: hidden;
     margin: 0.15rem 0 0;

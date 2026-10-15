@@ -1,4 +1,4 @@
-import { CircleAlert, LoaderCircle } from 'lucide-react';
+import { CircleAlert, Info, LoaderCircle } from 'lucide-react';
 import type { BiRefreshState } from '../types';
 
 interface BiPageNoticeProps {
@@ -9,6 +9,14 @@ const PROCESSING_STATUSES = ['queued', 'indexing', 'profiling', 'extracting', 'm
 
 export function BiPageNotice({ refresh }: BiPageNoticeProps) {
   const isProcessing = PROCESSING_STATUSES.some((status) => status === refresh.status);
+  if (refresh.status === 'idle' && refresh.message) {
+    return (
+      <div className="bi-page-notice" data-tone="info" role="status">
+        <Info size={18} aria-hidden="true" />
+        <div><strong>대시보드 생성 정보</strong><span>{refresh.message}</span></div>
+      </div>
+    );
+  }
   if (!isProcessing && refresh.status !== 'failed') return null;
 
   if (refresh.status === 'failed') {

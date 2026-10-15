@@ -15,7 +15,7 @@ from backend.shared.application.snapshots import VersionedSnapshotRecord
 from .pool import get_pooled_async_connection
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class VersionedSnapshotStoreError(RuntimeError):
     operation: str
     reason: str

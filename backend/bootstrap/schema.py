@@ -10,6 +10,7 @@ from backend.domains.chatbot.infrastructure.postgres.schema import CHATBOT_SCHEM
 from backend.domains.data_sources.infrastructure.postgres.schema import DATA_SOURCE_SCHEMA_SQL
 from backend.domains.workflow.infrastructure.postgres.schema import WORKFLOW_SCHEMA_SQL
 from backend.platform.postgres.pool import get_pooled_raw_connection
+from backend.platform.postgres.snapshot_schema import SNAPSHOT_SCHEMA_SQL
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ def ensure_application_schema(database_url: str) -> bool:
                 WORKFLOW_SCHEMA_SQL,
                 CHATBOT_SCHEMA_SQL,
                 BI_SCHEMA_SQL,
+                SNAPSHOT_SCHEMA_SQL,
                 BENCHMARK_SCHEMA_SQL,
             ):
                 cursor.execute(schema_sql)

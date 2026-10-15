@@ -69,12 +69,12 @@ export function FinancialTrendChart({
             </linearGradient>
           </defs>
           <CartesianGrid vertical={false} stroke="#e8efeb" strokeDasharray="2 3" />
-          <XAxis dataKey="year" tick={{ fill: '#84928b', fontSize: 7.5 }} tickLine={false} axisLine={false} interval={0} />
+          <XAxis dataKey="year" tick={{ fill: '#5e7065', fontSize: 10 }} tickLine={false} axisLine={false} interval={0} />
           <YAxis hide domain={['dataMin', 'dataMax']} />
           <Tooltip
             formatter={(value) => [valueFormatter(Number(value)), label]}
             labelFormatter={(year) => `${year}년`}
-            contentStyle={{ border: '1px solid #d7e4dd', borderRadius: 7, padding: '6px 8px', fontSize: 9 }}
+            contentStyle={{ border: '1px solid #d7e4dd', borderRadius: 7, padding: '8px 10px', fontSize: 12 }}
           />
           <Area
             type="monotone"
@@ -109,12 +109,12 @@ export function ComparisonTrendChart({
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 7, right: 5, bottom: 0, left: 5 }}>
           <CartesianGrid vertical={false} stroke="#e8efeb" strokeDasharray="2 3" />
-          <XAxis dataKey="year" tick={{ fill: '#84928b', fontSize: 7.5 }} tickLine={false} axisLine={false} interval={0} />
+          <XAxis dataKey="year" tick={{ fill: '#5e7065', fontSize: 10 }} tickLine={false} axisLine={false} interval={0} />
           <YAxis hide domain={['dataMin', 'dataMax']} />
           <Tooltip
             formatter={(value, name) => [`${Number(value).toFixed(1)}`, name === 'a' ? '기업 A' : '기업 B']}
             labelFormatter={(year) => `${year}년 · ${baseYear ?? '기준연도'}=100`}
-            contentStyle={{ border: '1px solid #d7e4dd', borderRadius: 7, padding: '6px 8px', fontSize: 9 }}
+            contentStyle={{ border: '1px solid #d7e4dd', borderRadius: 7, padding: '8px 10px', fontSize: 12 }}
           />
           <Line type="monotone" dataKey="a" stroke="#107c41" strokeWidth={2.2} dot={{ r: 2.5, fill: '#fff', strokeWidth: 1.5 }} activeDot={{ r: 4 }} />
           <Line type="monotone" dataKey="b" stroke="#2563eb" strokeWidth={2.2} dot={{ r: 2.5, fill: '#fff', strokeWidth: 1.5 }} activeDot={{ r: 4 }} />

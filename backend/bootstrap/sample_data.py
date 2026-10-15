@@ -72,7 +72,7 @@ def _read_observation(
         cell_id=f"{sheet_name}!{cell.coordinate}",
         sheet_name=sheet_name,
         cell_coord=cell.coordinate,
-        source_text=f"Company: {company_name} | Metric: {label} | Period: {period.source_label} | Value: {number} | USD millions",
+        source_text=f"Company: {company_name} | Sheet: {sheet_name} | Row Header: {label} | Column Header: {period.source_label} | Cell Value: {number} | USD millions",
     )
     return AvailableObservation(
         period_id=period.period_id,

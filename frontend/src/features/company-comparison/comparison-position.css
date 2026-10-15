@@ -11,7 +11,7 @@
   overflow: visible;
 }
 .benchmark-logo-marker-label text {
-  font-size: 7.5px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
@@ -45,14 +45,14 @@
 
 .distribution-main-title {
   color: var(--text-strong);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
 }
 
 .distribution-description {
   margin: 0;
   color: var(--text-muted);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 500;
   line-height: 1.45;
 }
@@ -63,7 +63,7 @@
   background: var(--bm-secondary-light);
   padding: 3px 7px;
   color: var(--bm-secondary-dark);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
 }
 
@@ -103,7 +103,7 @@
   align-items: center;
   gap: 8px;
   color: var(--text-muted);
-  font-size: 9px;
+  font-size: 11px;
   white-space: nowrap;
 }
 
@@ -156,14 +156,14 @@
   justify-items: center;
   padding: 0.45rem 0 1.85rem;
   color: var(--text-muted);
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1;
 }
 
 .benchmark-scatter-y-axis-labels strong {
   align-self: center;
   color: var(--text-secondary);
-  font-size: 9.5px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.03em;
   writing-mode: vertical-rl;
@@ -184,7 +184,7 @@
   background: color-mix(in srgb, var(--surface) 88%, transparent);
   padding: 2px 5px;
   color: var(--text-subtle);
-  font-size: 8.5px;
+  font-size: 11px;
   font-weight: 750;
   pointer-events: none;
   opacity: 0.88;
@@ -200,12 +200,12 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   color: var(--text-muted);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .benchmark-scatter-axis-labels strong {
   color: var(--text-secondary);
-  font-size: 9.5px;
+  font-size: 11px;
 }
 
 .benchmark-scatter-axis-labels span:last-child { text-align: right; }
@@ -220,7 +220,7 @@
   background: color-mix(in srgb, var(--surface) 97%, transparent);
   padding: 8px 9px;
   color: var(--text);
-  font-size: 10px;
+  font-size: 11px;
   box-shadow: var(--shadow-float);
 }
 
