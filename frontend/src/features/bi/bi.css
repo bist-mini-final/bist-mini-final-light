@@ -30,7 +30,7 @@
 }
 
 .bi-header {
-  --bi-header-control-height: 2.75rem;
+  --bi-header-control-height: 3rem;
   display: flex;
   min-inline-size: 0;
   max-inline-size: 100%;
@@ -134,6 +134,8 @@
   color: var(--text-muted);
   font-size: 0.65rem;
   font-weight: 700;
+  line-height: 1.2;
+  flex: none;
 }
 
 .bi-header__info dd {
@@ -144,6 +146,8 @@
   font-weight: 750;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.25;
+  flex: none;
 }
 
 .bi-source-note {

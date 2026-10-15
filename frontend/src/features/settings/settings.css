@@ -207,6 +207,37 @@
   min-width: 0;
 }
 
+.inference-settings { container: inference / inline-size; }
+.inference-settings .settings-section__header { flex-wrap: wrap; gap: 0.75rem; }
+.inference-settings .settings-section__title { align-items: flex-start; min-width: 0; }
+.inference-settings .settings-section__title > svg { flex: none; margin-top: 0.15rem; color: var(--brand-700); }
+.inference-settings h2 { margin: 0; font-size: 1rem; font-weight: 720; }
+.inference-settings .settings-section__title p { margin: 0.3rem 0 0; font-size: 0.8125rem; line-height: 1.55; color: var(--text-muted); }
+.inference-settings__form,
+.inference-settings__roles { display: grid; gap: 1rem; min-width: 0; }
+.inference-settings__form > .ui-button { justify-self: start; }
+.inference-settings__role { display: grid; min-width: 0; margin: 0; gap: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; background: var(--surface-subtle); }
+.inference-settings__role legend { padding: 0 0.35rem; color: var(--text-strong); font-size: 0.8125rem; font-weight: 720; }
+.inference-settings__field { display: grid; min-width: 0; gap: 0.4rem; align-items: center; color: var(--text-secondary); font-size: 0.8125rem; }
+.inference-settings__field input,
+.inference-settings__field select { width: 100%; min-width: 0; min-height: var(--control-h-md); border: 1px solid var(--border-strong); border-radius: var(--control-radius); background: var(--surface); padding: 0.55rem 0.7rem; color: var(--text); font: inherit; line-height: 1.4; }
+.inference-settings__field input:focus-visible,
+.inference-settings__field select:focus-visible { outline: 2px solid var(--brand-600); outline-offset: 2px; }
+.inference-settings__note { margin: 0; color: var(--text-muted); font-size: 0.75rem; line-height: 1.65; overflow-wrap: anywhere; }
+.inference-settings__error,
+.inference-settings__message { margin: 0; padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.8125rem; line-height: 1.6; overflow-wrap: anywhere; }
+.inference-settings__error { background: #fff1f2; color: #9f1239; }
+.inference-settings__message { background: var(--brand-50); color: var(--brand-800); }
+
+@container inference (min-width: 580px) {
+  .inference-settings__field { grid-template-columns: 10rem minmax(0, 1fr); gap: 0.75rem; }
+}
+
+@container inference (min-width: 1100px) {
+  .inference-settings__roles { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+  .inference-settings__field { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
+}
+
 @media (max-width: 640px) {
   .settings-section { padding: 1rem; }
   .settings-copy-row { align-items: stretch; flex-direction: column; }

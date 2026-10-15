@@ -4,6 +4,7 @@
 
 .ds-page {
   width: 100%;
+  container: data-sources / inline-size;
 }
 
 /* Summary Grid */
@@ -69,14 +70,13 @@
 
 .ds-summary-card__value--text {
   font-size: 1.15rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 
 .ds-summary-card__caption {
-  color: #8c9891;
-  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
 }
 
 /* Panel & Tables */
@@ -1294,6 +1294,12 @@
   .ds-index-meta-bar {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+@container data-sources (max-width: 900px) {
+  .ds-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ds-table th.ds-actions-col,
+  .ds-table td.ds-actions-col { position: static; box-shadow: none; }
 }
 
 /* Shared product visual system alignment */

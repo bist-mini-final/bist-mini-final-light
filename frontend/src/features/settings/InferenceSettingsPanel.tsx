@@ -60,7 +60,7 @@ export function InferenceSettingsPanel() {
   }
 
   return (
-    <Surface className="settings-section">
+    <Surface className="settings-section inference-settings">
       <div className="settings-section__header">
         <div className="settings-section__title">
           <Cpu size={19} />
@@ -68,45 +68,47 @@ export function InferenceSettingsPanel() {
         </div>
         <Button type="button" busy={probing} disabled={probing} onClick={probe}>서버 연결 확인</Button>
       </div>
-      {error ? <p role="alert" className="text-rose-700">{error}</p> : null}
+      {error ? <p role="alert" className="inference-settings__error">{error}</p> : null}
       {!settings && !error ? <p role="status">모델 설정을 읽는 중입니다.</p> : null}
       {settings ? (
-        <form onSubmit={save} className="space-y-5">
+        <form onSubmit={save} className="inference-settings__form">
+          <div className="inference-settings__roles">
           {ROLES.map(({ key, label }) => {
             const provider = String(settings[`${key}_provider`]);
             const modelKey = provider === 'llamacpp' ? `llama_cpp_${key}_model` : `openai_${key}_model`;
             return (
-              <fieldset key={key} className="space-y-2 rounded border border-slate-200 p-3">
-                <legend className="px-1 font-semibold">{label}</legend>
-                {statuses[key] ? <p className="text-sm text-slate-600">현재 적용 설정: {statuses[key].detail}</p> : null}
-                <label className="block text-sm">
+              <fieldset key={key} className="inference-settings__role">
+                <legend>{label}</legend>
+                {statuses[key] ? <p className="inference-settings__note">현재 적용 설정: {statuses[key].detail}</p> : null}
+                <label className="inference-settings__field">
                   제공자
-                  <select className="ml-2 rounded border p-1" value={provider} onChange={(event) => change(`${key}_provider`, event.target.value)}>
+                  <select value={provider} onChange={(event) => change(`${key}_provider`, event.target.value)}>
                     <option value="openai">OpenAI API</option><option value="llamacpp">로컬 llama.cpp</option>
                   </select>
                 </label>
-                <label className="block text-sm">
+                <label className="inference-settings__field">
                   모델 ID
-                  <input className="ml-2 w-64 rounded border p-1" required value={String(settings[modelKey])} onChange={(event) => change(modelKey, event.target.value)} />
+                  <input required value={String(settings[modelKey])} onChange={(event) => change(modelKey, event.target.value)} />
                 </label>
                 {provider === 'llamacpp' ? (
-                  <label className="block text-sm">
+                  <label className="inference-settings__field">
                     llama.cpp API 주소
-                    <input type="url" className="ml-2 w-80 rounded border p-1" required value={String(settings[`llama_cpp_${key}_url`])} onChange={(event) => change(`llama_cpp_${key}_url`, event.target.value)} />
+                    <input type="url" required value={String(settings[`llama_cpp_${key}_url`])} onChange={(event) => change(`llama_cpp_${key}_url`, event.target.value)} />
                   </label>
-                ) : <p className="text-xs text-slate-600">API 키는 .env의 OPENAI_API_KEY를 사용합니다.</p>}
+                ) : <p className="inference-settings__note">API 키는 .env의 OPENAI_API_KEY를 사용합니다.</p>}
                 {key === 'embedding' && provider === 'llamacpp' ? (
-                  <label className="block text-sm">
+                  <label className="inference-settings__field">
                     벡터 차원 (BGE-M3: 1024)
-                    <input type="number" min={1} max={16000} className="ml-2 w-24 rounded border p-1" required value={settings.llama_cpp_embedding_dimension} onChange={(event) => change('llama_cpp_embedding_dimension', Number(event.target.value))} />
+                    <input type="number" min={1} max={16000} required value={settings.llama_cpp_embedding_dimension} onChange={(event) => change('llama_cpp_embedding_dimension', Number(event.target.value))} />
                   </label>
                 ) : null}
               </fieldset>
             );
           })}
-          <p className="text-sm text-slate-600">로컬 VLM에는 이미지 지원 GGUF와 mmproj가 필요합니다. 모델 ID는 서버 실행 시 지정한 별칭과 일치해야 합니다.</p>
-          <Button type="submit" busy={saving} disabled={saving}>모델 설정 저장</Button>
-          {message ? <p role="status" className="text-emerald-800">{message}</p> : null}
+          </div>
+          <p className="inference-settings__note">로컬 VLM에는 이미지 지원 GGUF와 mmproj가 필요합니다. 모델 ID는 서버 실행 시 지정한 별칭과 일치해야 합니다.</p>
+          <Button variant="primary" type="submit" busy={saving} disabled={saving}>모델 설정 저장</Button>
+          {message ? <p role="status" className="inference-settings__message">{message}</p> : null}
         </form>
       ) : null}
     </Surface>
