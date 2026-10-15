@@ -2,13 +2,25 @@
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Literal
+
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+
+
+def _model_setting(role: str, default: str) -> str:
+    if os.getenv(f"{role.upper()}_PROVIDER", "openai") == "llamacpp":
+        return "llamacpp:" + os.getenv(f"LLAMA_CPP_{role.upper()}_MODEL", "bge-m3" if role == "embedding" else "qwen3-vl-4b")
+    return os.getenv(f"OPENAI_{role.upper()}_MODEL", default)
 
 # ==============================================================================
 # 1. Embedding Models & Dimensionality
 # ==============================================================================
-DEFAULT_EMBEDDING_MODEL: str = "text-embedding-3-small"
-DEFAULT_EMBEDDING_DIMENSION: int = 1536
+DEFAULT_EMBEDDING_MODEL: str = _model_setting("embedding", "text-embedding-3-small")
+DEFAULT_EMBEDDING_DIMENSION: int = int(os.getenv("LLAMA_CPP_EMBEDDING_DIMENSION", "1024")) if DEFAULT_EMBEDDING_MODEL.startswith("llamacpp:") else 1536
 DEFAULT_CELL_EMBEDDING_BATCH_SIZE: int = 2048
 DEFAULT_QUERY_EMBEDDING_BATCH_SIZE: int = 128
 
@@ -18,8 +30,8 @@ DEFAULT_EXCHANGE_RATE_KRW_PER_USD: float = 1400.0
 # ==============================================================================
 # 2. LLM, VLM & Reasoning Models & Pricing
 # ==============================================================================
-DEFAULT_LLM_MODEL: str = "gpt-5.6-luna"
-DEFAULT_VLM_MODEL: str = DEFAULT_LLM_MODEL
+DEFAULT_LLM_MODEL: str = _model_setting("llm", "gpt-5.6-luna")
+DEFAULT_VLM_MODEL: str = _model_setting("vlm", "gpt-5.6-luna")
 DEFAULT_READER_MODEL: str = DEFAULT_LLM_MODEL
 DEFAULT_REFINER_MODEL: str = DEFAULT_LLM_MODEL
 DEFAULT_ENTITY_EXTRACTOR_MODEL: str = DEFAULT_LLM_MODEL

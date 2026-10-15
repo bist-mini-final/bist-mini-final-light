@@ -15,6 +15,7 @@ import { Button, PageHeader, Surface } from '../../shared/ui';
 import { dataSourceApi } from '../data-sources/services/dataSourceApi';
 import type { DbStatusInfo } from '../data-sources/types';
 import './settings.css';
+import { InferenceSettingsPanel } from './InferenceSettingsPanel';
 
 /**
  * PostgreSQL/pgvector 인프라와 RAG 파이프라인 설정을 표시하고 관리하는 설정 화면을 렌더링합니다.
@@ -135,6 +136,7 @@ export function SettingsView() {
         )}
       />
 
+      <InferenceSettingsPanel />
       {/* 1. Database & pgvector Infrastructure */}
       <Surface className="settings-section">
         <div className="settings-section__header">
@@ -302,7 +304,7 @@ export function SettingsView() {
                 BFS 영역 감지 및 셀 좌표 기반 응답 정제에 사용하는 모델
               </p>
             </div>
-            <span className="settings-badge font-mono">gpt-4o-mini</span>
+            <span className="settings-badge font-mono">위 모델 실행 방식에서 선택</span>
           </div>
         </div>
       </Surface>

@@ -48,7 +48,7 @@ API가 로컬 작업 프로세스도 함께 시작·종료합니다.
    OPENAI_API_KEY=본인키
    ```
 
-   API 키 없이 화면과 코드·API 문서를 살펴볼 수 있습니다. LLM 구조 분석·임베딩·답변 기능을 실제 실행할 때는 키가 필요하며 API 사용료가 발생합니다.
+   OpenAI 모드에서는 LLM 구조 분석·임베딩·답변 실행에 키가 필요하며 API 사용료가 발생합니다. 로컬 llama.cpp 모드에서는 OpenAI 키 없이 실행할 수 있습니다.
 
 ## 실행
 
@@ -73,6 +73,13 @@ uv run python run.py
 4. BI 대시보드와 기업 비교에서 적재된 지표를 확인합니다. 지원되지 않는 엑셀 형태나 지표는 분석이 제한될 수 있습니다.
 
 [코드 읽기 순서와 연습 과제](docs/LEARNING.md) · [설치·문제 해결](docs/SETUP.md) · [원본과 달라진 점](docs/CHANGES.md)
+
+## OpenAI API 또는 로컬 GPU 모델
+
+설정 화면에서 답변 생성, VLM, 임베딩의 제공자를 각각 선택할 수 있습니다.
+로컬 기본 구성은 **Qwen3-VL 4B + BGE-M3**이며 CUDA llama.cpp를 사용합니다.
+Windows에서 처음 한 번 `pwsh -File scripts/setup_local_windows.ps1`로 준비하면 이후에는 `uv run python run.py` 하나로 로컬 DB·모델 서버까지 함께 실행합니다.
+상세 설정과 다른 제공자를 섞어 쓰는 방법은 [로컬 모델 안내](docs/LOCAL_MODELS.md)를 확인하세요.
 
 ## 프론트 코드를 수정할 때만
 

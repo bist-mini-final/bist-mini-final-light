@@ -63,12 +63,13 @@ from backend.domains.data_sources.infrastructure.workbook_profile_resolver impor
     StoredWorkbookProfileResolver,
 )
 from backend.platform.openai.responses import OpenAIResponsesClient
+from modules.common.config import DEFAULT_READER_MODEL
 
 if TYPE_CHECKING:
     from backend.bootstrap.module_registry import ModuleRegistry
 
 
-BI_READER_MODEL: Final = "gpt-5.6-luna"
+BI_READER_MODEL: Final = DEFAULT_READER_MODEL
 
 
 def _create_bi_profiles(registry: ModuleRegistry) -> WorkbookBiProfileRepository:

@@ -58,6 +58,7 @@ class OpenAIEmbeddingEncoder(Embeddings):
             response = self.provider.client.embeddings.create(
                 model=model_name,
                 input=list(batch_items),
+                encoding_format="float",
             )
         except (OpenAIError, OpenAIProviderError, ValueError) as error:
             raise OpenAIEmbeddingError(
@@ -153,6 +154,7 @@ class OpenAIEmbeddingEncoder(Embeddings):
             response = await client.embeddings.create(
                 model=model_name,
                 input=list(batch_items),
+                encoding_format="float",
             )
         except (OpenAIError, OpenAIProviderError, ValueError) as error:
             raise OpenAIEmbeddingError(

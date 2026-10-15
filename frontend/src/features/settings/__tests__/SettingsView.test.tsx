@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SettingsView } from '../SettingsView';
 import { dataSourceApi } from '../../data-sources/services/dataSourceApi';
 
+vi.mock('../InferenceSettingsPanel', () => ({ InferenceSettingsPanel: () => null }));
+
 vi.mock('../../data-sources/services/dataSourceApi', () => ({
   dataSourceApi: {
     getDbStatus: vi.fn(),

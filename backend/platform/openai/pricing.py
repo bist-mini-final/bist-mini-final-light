@@ -30,6 +30,8 @@ def calculate_openai_cost(
     """Estimate USD cost without inventing a fallback rate for unknown models."""
 
     normalized = model_name.casefold().strip()
+    if normalized.startswith("llamacpp:"):
+        return 0.0
     if normalized == "gpt-5.6":
         normalized = "gpt-5.6-sol"
     matched_model = next(

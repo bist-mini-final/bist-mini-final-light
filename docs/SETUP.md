@@ -4,6 +4,7 @@
 
 PostgreSQL 16 이상과 pgvector 0.8 이상을 사용합니다. DB를 로컬에 설치하거나 접근 가능한 실습용 PostgreSQL 서버를 사용하세요.
 앱 실행에 Docker, Compose, Kubernetes, Helm, KEDA, Redis는 사용하지 않습니다.
+Windows에서 프로젝트 전용 DB와 GPU 모델을 함께 설치하려면 [로컬 모델 설치 안내](LOCAL_MODELS.md)를 사용하세요. 영문 경로에 저장소를 두고 설치하면 이후 `uv run python run.py` 하나로 실행할 수 있습니다.
 
 - Windows: [PostgreSQL 설치 프로그램](https://www.postgresql.org/download/windows/)으로 DB를 설치합니다. pgvector는 별도 확장이므로 [공식 Windows 설치 안내](https://github.com/pgvector/pgvector#windows)를 따라 설치해야 합니다. 확장 빌드가 필요하면 담당자에게 실습 DB 준비를 요청해도 됩니다.
 - macOS: [pgvector 공식 설치 안내](https://github.com/pgvector/pgvector#installation)의 Homebrew 또는 Postgres.app 방법을 참고합니다.
@@ -35,7 +36,7 @@ API 시작 시 스키마 초기화가 끝난 뒤 workflow, BI materialization, B
 | 설정 | 기본값·의미 |
 | --- | --- |
 | `PGVECTOR_URL` | 실습 DB 연결 URL |
-| `OPENAI_API_KEY` | LLM·임베딩 실습용 키 |
+| `OPENAI_API_KEY` | OpenAI 실행 방식을 선택한 기능에 필요한 키 |
 | `LOCAL_WORKERS_ENABLED` | `true`; `false`면 API 조회만 실행하며 작업은 큐에 남습니다 |
 | `DB_POOL_MIN_SIZE` / `DB_POOL_MAX_SIZE` | 각 프로세스의 DB 연결 수, `1` / `5` |
 | `INGESTION_SHARDS_ENABLED` | `false`; 고급 실습 시에만 활성화 |

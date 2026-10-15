@@ -48,6 +48,12 @@ logger = logging.getLogger(__name__)
 def get_expected_dimension(model_name: Optional[str] = None) -> int:
     """Return the provider's default vector dimension for a known model family."""
     normalized = (model_name or DEFAULT_EMBEDDING_MODEL).lower()
+    if normalized.startswith("llamacpp:"):
+        import os
+
+        return int(os.getenv("LLAMA_CPP_EMBEDDING_DIMENSION", "1024"))
+    if "bge-m3" in normalized:
+        return 1024
     exact_dimensions = {
         "text-embedding-3-large": 3072,
         "text-embedding-3-small": 1536,

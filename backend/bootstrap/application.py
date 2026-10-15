@@ -62,7 +62,7 @@ from backend.domains.data_sources.infrastructure.pgvector import PgVectorConnect
 from backend.domains.data_sources.infrastructure.spreadsheets import LocalCellArtifactLocator
 from backend.domains.workflow.application.execution_service import WorkflowExecutionService
 from backend.domains.workflow.infrastructure.dispatcher import PostgresQueueDispatcher
-from backend.platform.openai.embeddings import OpenAIEmbeddingEncoder
+from backend.platform.inference.routing import RoutedEmbeddingEncoder, RoutedResponsesClient
 from backend.platform.openai.provider import OpenAIProvider
 from backend.platform.openai.responses import OpenAIResponsesClient
 from backend.shared.application.embeddings import EmbeddingEncoder
@@ -105,8 +105,8 @@ class RuntimeContainer:
         runtime_paths = paths or RuntimePaths()
         owns_provider = openai_provider is None
         provider = openai_provider or OpenAIProvider()
-        responses = completion_client or OpenAIResponsesClient(provider=provider)
-        embeddings = embedding_encoder or OpenAIEmbeddingEncoder(provider=provider)
+        responses = completion_client or RoutedResponsesClient(provider=provider)
+        embeddings = embedding_encoder or RoutedEmbeddingEncoder(provider=provider)
         services = create_workflow_runtime_services(
             completion_client=responses,
             embedding_encoder=embeddings,
@@ -136,10 +136,18 @@ class RuntimeContainer:
         self.close()
 
     def close(self) -> None:
+        if isinstance(self.completion_client, RoutedResponsesClient):
+            self.completion_client.close()
+        if isinstance(self.embedding_encoder, RoutedEmbeddingEncoder):
+            self.embedding_encoder.close()
         if self._owns_openai_provider:
             self.openai_provider.close()
 
     async def aclose(self) -> None:
+        if isinstance(self.completion_client, RoutedResponsesClient):
+            await self.completion_client.aclose()
+        if isinstance(self.embedding_encoder, RoutedEmbeddingEncoder):
+            await self.embedding_encoder.aclose()
         if self._owns_openai_provider:
             await self.openai_provider.aclose()
 

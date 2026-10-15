@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from backend.api.auth import SessionAuthenticator, create_auth_router
 from backend.bootstrap.application import ApplicationContainer
+from backend.bootstrap.model_settings import create_model_settings_router
 from backend.domains.benchmark.presentation import create_benchmark_router
 from backend.domains.bi.presentation.routes import create_bi_router
 from backend.domains.chatbot.presentation import create_chat_router
@@ -26,6 +27,7 @@ def create_api_router(
     """
 
     router = APIRouter()
+    router.include_router(create_model_settings_router())
     router.include_router(create_auth_router(authenticator))
     runtime = container.runtime
     services = runtime.services

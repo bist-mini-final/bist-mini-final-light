@@ -38,6 +38,9 @@ venv/
 ENV/
 env/
 .tools/
+.runtime/
+models/
+*.gguf
 
 # Local environment
 .env
@@ -75,6 +78,7 @@ data/source_files/
 data/chat_uploads/
 data/workflows/
 data/benchmark_sets/
+data/postgres/
 tmp/
 .tmp/
 

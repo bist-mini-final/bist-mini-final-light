@@ -62,6 +62,7 @@ class _UsageAccumulator:
     cost_usd: float = 0.0
 
     def record(self, response: Any) -> None:
+        self.model = getattr(response, "model", None) or self.model
         usage = getattr(response, "usage", {}) or {}
         prompt_tokens = usage.get("prompt_tokens", 0) or 0
         completion_tokens = usage.get("completion_tokens", 0) or 0
@@ -180,6 +181,7 @@ class BaseLLMModule(BaseModule):
         result: Any,
         model: str,
     ) -> Tuple[ApiUsageDTO, float, float]:
+        model = getattr(result, "model", None) or model
         usage = self._usage_from_result(result)
         cost = calculate_openai_cost(
             model_name=model,

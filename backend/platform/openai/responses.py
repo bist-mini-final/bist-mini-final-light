@@ -35,6 +35,7 @@ class OpenAIResponseResult:
     usage: dict[str, int]
     latency_seconds: float
     function_calls: tuple[dict[str, Any], ...] = ()
+    model: str | None = None
 
 
 def _image_data_url(image_path: Path) -> str:
