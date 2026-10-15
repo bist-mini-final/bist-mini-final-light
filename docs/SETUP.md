@@ -20,7 +20,8 @@ Windows에서 프로젝트 전용 DB와 GPU 모델을 함께 설치하려면 [�
 ## 실행 방식
 
 `uv sync --frozen` 후 `uv run python run.py`를 사용합니다.
-또는 `uv run uvicorn backend.entrypoints.asgi:app --host 127.0.0.1 --port 8765`로 직접 실행할 수 있습니다.
+또는 `uv run uvicorn backend.entrypoints.asgi:app --host 127.0.0.1 --port 8765 --loop backend.bootstrap.event_loop:selector_loop_factory`로 직접 실행할 수 있습니다.
+이 루프 설정은 Windows에서 psycopg 비동기 DB 연결에 필요하며 `run.py`에는 이미 적용되어 있습니다.
 
 API 시작 시 스키마 초기화가 끝난 뒤 workflow, BI materialization, BI question, benchmark 큐를 처리하는 로컬 프로세스 네 개를 자동 시작합니다.
 기본적으로 큰 Excel 파일의 추가 샤드 워커는 사용하지 않습니다.

@@ -17,7 +17,7 @@ def main() -> None:
     services = LocalServices(root)
     try:
         services.start()
-        uvicorn.run("backend.entrypoints.asgi:app", host="127.0.0.1", port=8765)
+        uvicorn.run("backend.entrypoints.asgi:app", host="127.0.0.1", port=8765, loop="backend.bootstrap.event_loop:selector_loop_factory")
     finally:
         services.stop()
 

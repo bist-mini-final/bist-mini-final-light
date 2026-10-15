@@ -17,6 +17,7 @@ def main() -> None:
         host="127.0.0.1",
         port=8765,
         reload=True,
+        loop="backend.bootstrap.event_loop:selector_loop_factory",
     )
 
 
