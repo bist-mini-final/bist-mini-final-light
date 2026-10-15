@@ -1,5 +1,7 @@
 import asyncio
 import logging
+from collections.abc import Iterator
+from contextlib import contextmanager
 from threading import Lock, RLock
 from typing import Any, Dict, List, Mapping, Optional, Set, Tuple
 
@@ -60,6 +62,7 @@ class WorkflowExecutor:
         self._cancellation_lock = Lock()
         self._active_run_ids: Set[str] = set()
         self._cancelled_run_ids: Set[str] = set()
+        self._sync_runner: asyncio.Runner | None = None
         self._port_resolver = WorkflowPortResolver(module_registry)
         self._graph_validator = WorkflowGraphValidator(
             module_registry,
@@ -139,7 +142,21 @@ class WorkflowExecutor:
         node_ids: tuple[str, ...],
     ) -> WorkflowRun:
         """Execute one topological generation through an asyncio TaskGroup."""
+        if self._sync_runner is not None:
+            return self._sync_runner.run(self.execute_scheduled_batch_async(run_id, node_ids))
         return asyncio.run(self.execute_scheduled_batch_async(run_id, node_ids))
+
+    @contextmanager
+    def batch_execution_session(self) -> Iterator[asyncio.Runner]:
+        """Keep async HTTP and database pools on one loop across worker batches."""
+        if self._sync_runner is not None:
+            raise RuntimeError("A batch execution session is already active")
+        with asyncio.Runner() as runner:
+            self._sync_runner = runner
+            try:
+                yield runner
+            finally:
+                self._sync_runner = None
 
     async def execute_scheduled_batch_async(
         self,

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from threading import Barrier, get_ident
+from unittest.mock import patch
 
 from pydantic import BaseModel
 
@@ -25,6 +26,28 @@ from modules.common.base_module import (
     ModuleTaskPolicy,
 )
 from modules.registry import BaseModuleRegistry
+
+
+def test_worker_session_keeps_one_loop_across_batches_and_cleanup(tmp_path) -> None:
+    executor = WorkflowExecutor(BaseModuleRegistry(EmbeddingArtifactStore(tmp_path / "artifacts")), RunStore(), ResultCache())
+    loops = []
+    async def batch(run_id, node_ids):
+        loops.append(asyncio.get_running_loop())
+        await asyncio.sleep(0)
+        return (run_id, node_ids)
+    async def cleanup():
+        assert asyncio.get_running_loop() is loops[0]
+    with patch.object(executor, "execute_scheduled_batch_async", side_effect=batch):
+        with executor.batch_execution_session() as runner:
+            executor.execute_scheduled_batch("run", ("decompose",))
+            executor.execute_scheduled_batch("run", ("read",))
+            runner.run(cleanup())
+            assert loops[0] is loops[1]
+            assert not loops[0].is_closed()
+        assert loops[0].is_closed()
+        with executor.batch_execution_session():
+            executor.execute_scheduled_batch("next-run", ("read",))
+        assert loops[2] is not loops[0]
 
 
 class ParallelInput(ModuleInputDTO):

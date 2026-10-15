@@ -32,6 +32,7 @@ from backend.domains.data_sources.infrastructure.postgres import (
     PostgresIngestionShardRepository,
 )
 from backend.domains.workflow.infrastructure.dispatcher import PostgresQueueDispatcher
+from backend.platform.postgres import close_async_pool
 
 WorkerMain = Callable[..., int]
 
@@ -81,14 +82,18 @@ def run_worker(kind: str, argv: Sequence[str] = ()) -> int:
             initialize_schema=False,
             require_database=True,
         )
-        try:
-            return worker(
-                tuple(argv),
-                services=runtime.services,
-                default_queue=WORKFLOW_QUEUE,
-            )
-        finally:
-            runtime.close()
+        with runtime.services.workflow_executor.batch_execution_session() as runner:
+            try:
+                return worker(
+                    tuple(argv),
+                    services=runtime.services,
+                    default_queue=WORKFLOW_QUEUE,
+                )
+            finally:
+                try:
+                    runner.run(runtime.aclose())
+                finally:
+                    runner.run(close_async_pool())
     if kind in {"ingestion-embedding", "ingestion-vector"}:
         logging.basicConfig(
             level=getattr(

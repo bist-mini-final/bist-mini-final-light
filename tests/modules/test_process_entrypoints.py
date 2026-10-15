@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from unittest.mock import Mock, patch
+import asyncio
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
@@ -39,7 +40,10 @@ def test_worker_registry_exposes_all_deployment_kinds() -> None:
 def test_workflow_worker_receives_queue_arguments() -> None:
     worker = Mock(return_value=0)
     runtime = Mock()
+    runtime.aclose = AsyncMock()
+    runtime.services.workflow_executor.batch_execution_session.return_value = asyncio.Runner()
     with (
+        patch("backend.bootstrap.workers.close_async_pool", new_callable=AsyncMock) as close_pools,
         patch("backend.bootstrap.workers._load_worker", return_value=worker),
         patch(
             "backend.bootstrap.workers.RuntimeContainer.create",
@@ -52,7 +56,8 @@ def test_workflow_worker_receives_queue_arguments() -> None:
         services=runtime.services,
         default_queue="workflow-core",
     )
-    runtime.close.assert_called_once_with()
+    runtime.aclose.assert_awaited_once_with()
+    close_pools.assert_awaited_once_with()
 
 
 def test_specialized_worker_rejects_undeclared_arguments() -> None:
