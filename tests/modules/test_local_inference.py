@@ -122,3 +122,37 @@ def test_async_local_completion_uses_async_chat_endpoint() -> None:
             assert result.content == "ok"
             await provider.aclose()
     asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("asynchronous", [False, True])
+def test_tools_and_structured_final_use_separate_requests(asynchronous: bool) -> None:
+    captured = []
+    def handle(request: httpx.Request) -> httpx.Response:
+        body = json.loads(request.content)
+        captured.append(body)
+        content = '{"answer":42}' if "response_format" in body else "The answer is 42."
+        assert not ("response_format" in body and "tools" in body)
+        return httpx.Response(200, json=completion({"role": "assistant", "content": content}))
+    request = {"input_items": [{"role": "user", "content": "Compute 17+25"}],
+               "tools": [{"type": "function", "name": "calculate", "parameters": {"type": "object"}}],
+               "text_format": {"schema": {"type": "object", "properties": {"answer": {"type": "integer"}}}}}
+    async def scenario():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as http:
+            provider = OpenAIProvider(api_key="local", base_url="http://localhost:8081/v1", async_http_client=http)
+            try:
+                return await LocalChatGateway().create_async(provider, request, "llamacpp:qwen")
+            finally:
+                await provider.aclose()
+    if asynchronous:
+        result = asyncio.run(scenario())
+    else:
+        with httpx.Client(transport=httpx.MockTransport(handle)) as http:
+            provider = OpenAIProvider(api_key="local", base_url="http://localhost:8081/v1", http_client=http)
+            try:
+                result = LocalChatGateway().create(provider, request, "llamacpp:qwen")
+            finally:
+                provider.close()
+    assert len(captured) == 2
+    assert json.loads(result.content) == {"answer": 42}
+    assert result.usage["total_tokens"] == 10
+    assert captured[1]["messages"][1]["content"] == "The answer is 42."

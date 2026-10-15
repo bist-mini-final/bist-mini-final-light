@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import threading
 import time
 from collections import OrderedDict
@@ -54,11 +55,31 @@ class LocalChatGateway:
         payload: dict[str, Any] = {"model": model.removeprefix("llamacpp:"), "messages": messages, "temperature": 0}
         if request.get("max_output_tokens") is not None:
             payload["max_tokens"] = request["max_output_tokens"]
-        if request.get("text_format"):
+        if request.get("text_format") and not request.get("tools"):
             payload["response_format"] = {"type": "json_object", "schema": request["text_format"]["schema"]}
         if request.get("tools"):
             payload["tools"] = [{"type": "function", "function": {key: value for key, value in tool.items() if key != "type"}} for tool in request["tools"]]
         return payload
+
+    @staticmethod
+    def structured_final(payload: dict[str, Any], request: dict[str, Any], document: dict[str, Any]) -> dict[str, Any] | None:
+        # Keep tool-call grammar separate from the final JSON-schema grammar.
+        # Several llama.cpp chat templates cannot combine them in one request.
+        if not request.get("tools") or not request.get("text_format"):
+            return None
+        message = document["choices"][0]["message"]
+        if message.get("tool_calls"):
+            return None
+        schema = request["text_format"]["schema"]
+        return {
+            **{key: value for key, value in payload.items() if key != "tools"},
+            "messages": [*payload["messages"], message, {"role": "user", "content": "Return the final answer using the supplied evidence and this JSON schema. Preserve evidence IDs exactly.\n" + json.dumps(schema, ensure_ascii=False)}],
+            "response_format": {"type": "json_object", "schema": schema},
+        }
+
+    @staticmethod
+    def combined_usage(first: dict[str, Any], final: dict[str, Any]) -> dict[str, Any]:
+        return {**final, "usage": {key: (first.get("usage", {}).get(key) or 0) + (final.get("usage", {}).get(key) or 0) for key in ("prompt_tokens", "completion_tokens", "total_tokens")}}
 
     def result(self, document: dict[str, Any], payload: dict[str, Any], started: float) -> OpenAIResponseResult:
         choices = document.get("choices") or []
@@ -90,8 +111,14 @@ class LocalChatGateway:
         payload = self.payload(request, model)
         started = time.perf_counter()
         try:
-            response = provider.with_timeout(request.get("timeout_seconds") or 240).chat.completions.create(**payload)
-            return self.result(response.model_dump(mode="json"), payload, started)
+            client = provider.with_timeout(request.get("timeout_seconds") or 240)
+            document = client.chat.completions.create(**payload).model_dump(mode="json")
+            result = self.result(document, payload, started)
+            final_payload = self.structured_final(payload, request, document)
+            if final_payload is not None:
+                final = client.chat.completions.create(**final_payload).model_dump(mode="json")
+                return self.result(self.combined_usage(document, final), final_payload, started)
+            return result
         except OpenAIResponsesError:
             raise
         except Exception as error:
@@ -103,7 +130,13 @@ class LocalChatGateway:
         try:
             client = await provider.with_timeout_async(request.get("timeout_seconds") or 240)
             response = await client.chat.completions.create(**payload)
-            return self.result(response.model_dump(mode="json"), payload, started)
+            document = response.model_dump(mode="json")
+            result = self.result(document, payload, started)
+            final_payload = self.structured_final(payload, request, document)
+            if final_payload is not None:
+                final = await client.chat.completions.create(**final_payload)
+                return self.result(self.combined_usage(document, final.model_dump(mode="json")), final_payload, started)
+            return result
         except OpenAIResponsesError:
             raise
         except Exception as error:
