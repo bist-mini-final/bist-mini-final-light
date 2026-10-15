@@ -74,6 +74,9 @@ uv run python run.py
 
 [코드 읽기 순서와 연습 과제](docs/LEARNING.md) · [설치·문제 해결](docs/SETUP.md) · [원본과 달라진 점](docs/CHANGES.md)
 
+18개 가상 기업으로 BI 전체 카드를 확인하려면 [BI 샘플 데이터 안내](examples/bi/README.md)를 참고하세요.
+앱 실행 후 `uv run python scripts/load_bi_samples.py`로 Excel 적재와 셀 기반 실습 대시보드를 한 번에 준비합니다.
+
 ## OpenAI API 또는 로컬 GPU 모델
 
 설정 화면에서 답변 생성, VLM, 임베딩의 제공자를 각각 선택할 수 있습니다.

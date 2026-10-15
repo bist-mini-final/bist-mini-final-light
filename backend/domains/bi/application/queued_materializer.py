@@ -6,6 +6,7 @@ from typing import Protocol, assert_never
 from pydantic import ValidationError
 
 from backend.domains.bi.domain.catalog import METRIC_CATALOG, SourceMetricDefinition
+from backend.domains.bi.domain.current_periods import select_current_periods
 from backend.domains.bi.domain.extraction_models import BiMetricExtractionResult
 from backend.domains.bi.domain.materialization_models import (
     BiDocumentProfile,
@@ -105,6 +106,13 @@ class BiQueuedMaterializer:
                 pass
             case unreachable:
                 assert_never(unreachable)
+
+        if not select_current_periods(profile.periods, self._services.clock.now()):
+            return self._profile_failed(
+                job,
+                "eligible_periods_missing",
+                "분석할 과거 결산 기간을 찾지 못했습니다. Excel의 기간 헤더에 결산 종료일을 표시하고 다시 적재하세요.",
+            )
 
         pending = self._pending_results(profile)
         extracting = job.model_copy(
