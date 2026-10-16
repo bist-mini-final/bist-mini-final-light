@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import sys
 from datetime import UTC, datetime
+from functools import partial
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -43,11 +44,14 @@ def main() -> None:
         MetricStatus,
     )
     from backend.domains.bi.infrastructure.postgres.store import PostgresBiStore
-    from scripts.sample_ingestion import ensure_sample_index
+    from backend.domains.data_sources.infrastructure.pgvector import PgVectorStore
+    from scripts.sample_cells import expected_sample_cells, indexed_sample_complete
+    from scripts.sample_ingestion import complete_sample_index, ensure_sample_index
 
     directory = ROOT / "examples" / "bi"
     manifest = read_sample_manifest(directory)
     store = PostgresBiStore()
+    vectors = PgVectorStore()
     base = args.api_url.rstrip("/") + "/api/v1"
     with httpx.Client(timeout=60) as client:
         client.get(base + "/data-sources/db-status").raise_for_status()
@@ -57,19 +61,39 @@ def main() -> None:
                 raise ValueError(f"Changed fixture: {path.name}")
             response = client.get(base + "/data-sources/indexes")
             response.raise_for_status()
-            index = next(
-                (
-                    item
-                    for item in response.json()["indexes"]
-                    if item.get("file_name") == path.name
-                    and item.get("workbook_hash") == company["sha256"]
-                ),
-                None,
+            matching = [
+                item
+                for item in response.json()["indexes"]
+                if item.get("file_name") == path.name
+                and item.get("workbook_hash") == company["sha256"]
+            ]
+            index = next(iter(matching), None)
+            original_id = index["index_id"] if index else None
+            validate = partial(
+                indexed_sample_complete,
+                vector_store=vectors,
+                expected=expected_sample_cells(manifest, company),
             )
             index = ensure_sample_index(
-                client, base, path, index, set(manifest["sheet_rows"]), args.timeout
+                client,
+                base,
+                path,
+                index,
+                set(manifest["sheet_rows"]),
+                args.timeout,
+                validate,
             )
             index_id = index["index_id"]
+            for previous in matching:
+                if previous["index_id"] in {index_id, original_id}:
+                    continue
+                detail = client.get(base + "/data-sources/indexes/" + previous["index_id"])
+                detail.raise_for_status()
+                if not complete_sample_index(
+                    detail.json(), set(manifest["sheet_rows"])
+                ) or not validate(detail.json()):
+                    cleanup = client.delete(base + "/data-sources/indexes/" + previous["index_id"])
+                    cleanup.raise_for_status()
             response = client.put(
                 base + "/data-sources/indexes/" + index_id + "/company",
                 json={"company_name": company["name"]},

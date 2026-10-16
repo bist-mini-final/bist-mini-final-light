@@ -92,6 +92,27 @@ def test_cached_partial_index_is_never_accepted_after_retry_exhaustion(
             30,
         )
     assert client.post.call_count == 3
+    client.delete.assert_not_called()
+
+
+def test_all_sheet_names_do_not_hide_missing_numeric_cells(monkeypatch: pytest.MonkeyPatch) -> None:
+    client = MagicMock(spec=httpx.Client)
+    client.get.return_value = response(complete_index())
+    client.post.return_value = response({"job_id": "retry"})
+    validate = MagicMock(side_effect=[False, True])
+    monkeypatch.setattr("scripts.sample_ingestion.wait_for_index", lambda *args: complete_index())
+    result = ensure_sample_index(
+        client,
+        "http://localhost/api",
+        Path("sample.xlsx"),
+        complete_index(),
+        {"Income Statement", "Balance Sheet", "Cash Flow"},
+        30,
+        validate,
+    )
+    assert result["index_id"] == "sample"
+    assert client.post.call_args.kwargs["json"]["use_cache"] is False
+    client.delete.assert_not_called()
 
 
 @pytest.mark.parametrize("use_cache", [True, False])

@@ -12,6 +12,7 @@
 - [check_environment.py](check_environment.py)
 - [load_bi_samples.py](load_bi_samples.py)
 - [sample_ingestion.py](sample_ingestion.py): 샘플 세 시트의 적재 완전성과 부분 결과 재시도
+- [sample_cells.py](sample_cells.py): 해당 인덱스에 원본 수치 셀과 값이 모두 적재됐는지 확인
 
 ## 작업과 검사
 

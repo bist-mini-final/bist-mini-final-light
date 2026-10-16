@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -43,13 +44,22 @@ def ensure_sample_index(
     index: dict[str, Any] | None,
     required_sheets: set[str],
     timeout: int,
+    validate_index: Callable[[dict[str, Any]], bool] | None = None,
 ) -> dict[str, Any]:
     """Reuse complete matching fixtures; reanalyze partial results at most three times."""
+    stale_ids: set[str] = set()
+
+    def ready(candidate: dict[str, Any]) -> bool:
+        return complete_sample_index(candidate, required_sheets) and (
+            validate_index is None or validate_index(candidate)
+        )
+
     if index is not None:
         response = client.get(base + "/data-sources/indexes/" + index["index_id"])
         response.raise_for_status()
-        if complete_sample_index(response.json(), required_sheets):
+        if ready(response.json()):
             return response.json()
+        stale_ids.add(index["index_id"])
         print(f"Reanalyzing incomplete index: {path.name}", flush=True)
     for attempt in range(1, 4):
         if index is None and attempt == 1:
@@ -78,7 +88,12 @@ def ensure_sample_index(
         run_id = job["job_id"]
         print(f"Indexing {path.name} (attempt {attempt}/3): {run_id}", flush=True)
         result = wait_for_index(client, base, run_id, timeout)
-        if complete_sample_index(result, required_sheets):
+        if ready(result):
+            for stale_id in stale_ids - {result["index_id"]}:
+                cleanup = client.delete(base + "/data-sources/indexes/" + stale_id)
+                cleanup.raise_for_status()
             return result
+        if result.get("index_id"):
+            stale_ids.add(result["index_id"])
         print(f"Partial sheet result: {path.name}; retrying without cache", flush=True)
     raise RuntimeError(f"Incomplete sample after 3 attempts: {path.name}; inspect VLM job logs")
