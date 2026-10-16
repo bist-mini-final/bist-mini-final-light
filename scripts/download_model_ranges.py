@@ -72,7 +72,7 @@ def download_model(url: str, destination: Path, digest: str, size: int) -> Path:
                 if not part.is_file():
                     part.write_bytes(chunk)
     with httpx.Client(follow_redirects=True, timeout=httpx.Timeout(120, connect=30)) as client:
-        with ThreadPoolExecutor(max_workers=8) as pool:
+        with ThreadPoolExecutor(max_workers=32) as pool:
             futures = [
                 pool.submit(
                     fetch_range,

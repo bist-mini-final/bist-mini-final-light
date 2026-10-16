@@ -32,7 +32,7 @@ uv run python run.py
 DB는 루프백 주소에만 열리고 프로젝트 로컬 클러스터의 접속은 trust 방식입니다.
 모델 다운로드가 중단되면 스크립트를 다시 실행해 재개할 수 있습니다.
 모델은 제한 시간·재시도가 있는 일반 HTTPS로 받습니다. 별도 Hugging Face 클라이언트나 토큰은 필요 없습니다.
-공식 Git LFS SHA-256을 검증하며 중단된 `.partial` 파일은 서버가 지원하면 재개합니다.
+공식 Git LFS SHA-256을 검증하며 병렬 구간 다운로드로 받습니다. 중단된 `.parts/`와 `.partial`은 재실행 시 재사용합니다.
 이 폴더와 DB 데이터, `.env`는 Git에서 제외됩니다.
 
 설치 후에는 **`uv run python run.py` 하나로** 프로젝트 DB, CUDA 모델 서버, FastAPI·프론트·워커가 시작됩니다.
