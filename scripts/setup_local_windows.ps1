@@ -53,7 +53,7 @@ foreach ($Asset in $Assets.Keys) {
 }
 }
 if (-not $SkipModels -and -not $DatabaseOnly) {
-    uv run --with huggingface_hub python scripts/download_models.py
+    uv run python scripts/download_models.py
     if ($LASTEXITCODE -ne 0) { throw 'GGUF download failed; rerun to resume' }
 }
 if ($DatabaseOnly) {
