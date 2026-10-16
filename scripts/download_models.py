@@ -1,4 +1,4 @@
-"""Download the selected GGUFs using Hugging Face's resumable Xet client."""
+"""Download the selected GGUFs over Hugging Face's resumable HTTPS transport."""
 
 import os
 from concurrent.futures import ThreadPoolExecutor
@@ -8,10 +8,12 @@ from pathlib import Path
 def main() -> None:
     """Download Qwen VL, its matching projector, and BGE-M3 into models/.
 
-    Hugging Face's downloader reuses its local cache on reruns. This function
+    HTTPS is the default because Xet's native transport can stall behind
+    corporate proxies. Set HF_HUB_DISABLE_XET=0 to opt in to Xet. The downloader
+    reuses its local cache on reruns. This function
     downloads files only: it does not start model servers or alter .env.
     """
-    os.environ.setdefault("HF_XET_HIGH_PERFORMANCE", "1")
+    os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
     os.environ.setdefault("HF_HUB_DOWNLOAD_TIMEOUT", "120")
     from huggingface_hub import hf_hub_download
 
