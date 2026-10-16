@@ -7,6 +7,7 @@
 - [setup_local_windows.ps1](setup_local_windows.ps1)
 - [configure_local.py](configure_local.py)
 - [download_models.py](download_models.py)
+- [download_runtime.py](download_runtime.py)
 - [check_environment.py](check_environment.py)
 - [load_bi_samples.py](load_bi_samples.py)
 

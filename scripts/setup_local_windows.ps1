@@ -21,6 +21,8 @@ if ($ProjectRoot -match '[^\x00-\x7F]') {
     throw 'Windows PostgreSQL requires an ASCII path. Clone into C:\Repos\bist-mini-final-light and run this script there.'
 }
 Set-Location -LiteralPath $ProjectRoot
+uv sync --frozen
+if ($LASTEXITCODE -ne 0) { throw 'Python dependency installation failed' }
 $InstallerPath = Join-Path $ProjectRoot '.runtime\installer'
 New-Item -ItemType Directory -Path $InstallerPath -Force | Out-Null
 
@@ -45,17 +47,11 @@ $Assets = @{
 }
 foreach ($Asset in $Assets.Keys) {
     $ZipPath = Join-Path $InstallerPath $Asset
-    if (-not (Test-Path -LiteralPath $ZipPath) -or (Get-FileHash -LiteralPath $ZipPath -Algorithm SHA256).Hash -ne $Assets[$Asset]) {
-        Invoke-WebRequest "$ReleaseRoot/$Asset" -OutFile $ZipPath
-    }
-    if ((Get-FileHash -LiteralPath $ZipPath -Algorithm SHA256).Hash -ne $Assets[$Asset]) {
-        throw "SHA-256 mismatch: $Asset. Rerun setup to download again."
-    }
+    uv run python scripts/download_runtime.py --url "$ReleaseRoot/$Asset" --destination $ZipPath --sha256 $Assets[$Asset]
+    if ($LASTEXITCODE -ne 0) { throw "Runtime download failed: $Asset. Rerun setup to resume." }
     Expand-Archive -LiteralPath $ZipPath -DestinationPath $LlamaPath -Force
 }
 }
-uv sync --frozen
-if ($LASTEXITCODE -ne 0) { throw 'Python dependency installation failed' }
 if (-not $SkipModels -and -not $DatabaseOnly) {
     uv run --with 'huggingface_hub[hf_xet]' python scripts/download_models.py
     if ($LASTEXITCODE -ne 0) { throw 'GGUF download failed; rerun to resume' }
