@@ -1,10 +1,11 @@
 # modules/reader
 
-Excel 파일을 읽어 시트·셀·렌더링 자료를 준비합니다.
+검색·확장된 셀 근거와 원본 통화·금액 단위로 최종 답변을 생성합니다. 통화나 단위를 한국어 질문에서 추측하지 않습니다.
 
 ## 먼저 볼 파일
 
 - [reader.py](reader.py)
+- [financial_units.py](financial_units.py): 근거 셀의 정확한 workbook/index에 해당하는 저장 프로필만 조회합니다.
 
 ## 작업과 검사
 

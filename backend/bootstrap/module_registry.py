@@ -151,6 +151,7 @@ class ModuleRegistry(BaseModuleRegistry):
                     ReaderModule,
                     completion_client,
                     self.pgvector_repositories.retrieval,
+                    workbook_units=PostgresWorkbookProfileRepository(self.database_url),
                 ),
             )
         )
