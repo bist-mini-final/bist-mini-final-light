@@ -710,7 +710,7 @@ class ReaderModule(BaseLLMModule):
             "max_tool_iterations",
             "retry_invalid_grounding",
         ],
-        version="12",
+        version="13",
     )
     input_model = ReaderInputDTO
     config_model = ReaderConfigDTO

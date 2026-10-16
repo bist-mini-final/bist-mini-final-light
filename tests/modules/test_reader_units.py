@@ -83,3 +83,4 @@ def test_reader_prompt_includes_original_units_and_no_guessing_rule() -> None:
     assert "한국어 질문이라는 이유로" in messages[0]["content"]
     assert '"currency": "USD"' in messages[1]["content"]
     assert '"amount_scale": "millions"' in messages[1]["content"]
+    assert '"display_unit": "USD 백만"' in messages[1]["content"]
