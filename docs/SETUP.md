@@ -15,7 +15,7 @@ Windows에서 프로젝트 전용 DB와 GPU 모델을 함께 설치하려면 [�
 
 관리자 계정으로 `rag_flow_light`를 만들고, 해당 DB에서 `CREATE EXTENSION IF NOT EXISTS vector;`를 실행합니다.
 앱 계정은 실습 DB에 연결하고 테이블·인덱스를 만들 권한이 필요합니다.
-여러 학생이 하나의 서버를 사용하면 학생마다 별도 DB와 계정을 만들어 `.env`를 다르게 설정하세요.
+하나의 서버를 공유하면 사용자별로 별도 DB와 계정을 만들어 `.env`를 다르게 설정하세요.
 
 비밀번호에 `@`, `:`, `/`, `#` 등이 있으면 연결 URL에서 퍼센트 인코딩해야 합니다.
 `.env`는 Git에서 제외됩니다. 개인 API 키와 DB 비밀번호를 문서나 코드에 넣지 마세요.
@@ -100,8 +100,8 @@ sudo -u postgres psql
 psql에서 다음을 실행하되 암호는 본인 값으로 바꿉니다.
 
 ```sql
-CREATE ROLE rag_student WITH LOGIN PASSWORD 'CHANGE_THIS_PASSWORD';
-CREATE DATABASE rag_flow_light OWNER rag_student;
+CREATE ROLE rag_user WITH LOGIN PASSWORD 'CHANGE_THIS_PASSWORD';
+CREATE DATABASE rag_flow_light OWNER rag_user;
 \connect rag_flow_light
 CREATE EXTENSION IF NOT EXISTS vector;
 ```

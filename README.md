@@ -1,6 +1,6 @@
 # BIST Mini Final Light
 
-IPP 근로학생을 위한 **Excel RAG·BI 학습용 로컬 앱**입니다.
+**Excel RAG·BI 온보딩용 저장소**입니다.
 Excel 업로드, 셀 근거 답변, 재무 대시보드와 기업 비교를 실습합니다.
 Docker·Kubernetes 없이 실행하며, 정적 프론트가 포함되어 **일반 실행에 Node.js는 필요 없습니다.**
 

@@ -31,7 +31,7 @@
 - 사내 프록시·방화벽이 GitHub·Hugging Face·conda-forge를 막으면 담당자의 네트워크 설정이 필요합니다.
 - 4B 모델 답변은 셀과 대조해야 합니다. 셀 기반 샘플 BI가 RAG 정확도 검증을 대신하지 않습니다.
 
-## 신규 학생의 완료 기준
+## 온보딩 완료 기준
 
 1. `check_environment.py` 실행 전 검사 통과.
 2. run.py 실행 후 `check_environment.py --online` 통과.
