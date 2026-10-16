@@ -13,6 +13,7 @@
 | [ARCHITECTURE.md](ARCHITECTURE.md) | 폴더 역할과 데이터 흐름 |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | 빌드·검사·docstring 규칙 |
 | [READINESS.md](READINESS.md) | 확인 범위와 환경 의존성 |
+| [CLEAN_INSTALL_VERIFICATION.md](CLEAN_INSTALL_VERIFICATION.md) | 새 클론·새 DB 설치부터 샘플·기업 비교까지의 실제 검증 기록 |
 | [LEARNING.md](LEARNING.md) | 코드 읽기와 연습 과제 |
 | [CHANGES.md](CHANGES.md) | 원본과 경량판의 차이 |
 

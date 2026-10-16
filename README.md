@@ -114,6 +114,7 @@ RAG 추출 실습은 **데이터 초기화 및 재생성**으로 별도 진행�
 | [코드 구조](docs/ARCHITECTURE.md) | 폴더 역할, 데이터 흐름, 수정 지점 |
 | [개발·검사](docs/DEVELOPMENT.md) | 프론트 빌드, 테스트, docstring 규칙 |
 | [점검 결과](docs/READINESS.md) | 확인 범위와 환경 의존성 |
+| [새 클론 검증](docs/CLEAN_INSTALL_VERIFICATION.md) | README 설치·샘플 적재·셀 근거 답변·기업 비교 실제 결과 |
 
 전체 문서 목록은 [docs/README.md](docs/README.md), 실습 과제는 [LEARNING.md](docs/LEARNING.md)에 있습니다.
 각 주요 디렉터리의 `README.md`에도 진입 파일과 관련 검사 방법을 정리했습니다.
