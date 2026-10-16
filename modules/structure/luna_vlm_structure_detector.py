@@ -176,7 +176,7 @@ Return every independent rectangular table in the worksheet. A table must contai
 - row_header_range: label columns left of the data, or null.
 - data_range: the complete value matrix.
 
-All ranges use inclusive Excel coordinates and semantic regions must not overlap. For example, when row_header_range ends at D, data_range must start at E or later. Never repeat a row-header column inside data_range.
+All ranges use inclusive Excel coordinates and semantic regions must not overlap. excel_range must contain title_range, both header ranges, and data_range. Include title rows above the data in excel_range. For example, when row_header_range ends at D, data_range must start at E or later. Never repeat a row-header column inside data_range.
 
 Use the full-sheet context to keep one logical table whole instead of splitting it at image boundaries. Do not propose search candidates and do not omit a table because its location is uncertain. Return only JSON matching the supplied schema."""
 
@@ -462,6 +462,15 @@ def _validated_sheet_decision(
         raise ModuleExecutionError(
             f"Luna 응답 범위가 시트 {sheet_bounds.excel_range}를 벗어났습니다: {table.excel_range}"
         )
+    if table.title_range:
+        title = _bounds(table.title_range, "title_range")
+        if (
+            _contains(sheet_bounds, title)
+            and title.max_row < whole.min_row
+            and whole.min_column <= title.min_column <= title.max_column <= whole.max_column
+        ):
+            whole = CellBounds(title.min_row, whole.max_row, whole.min_column, whole.max_column)
+            table = table.model_copy(update={"excel_range": whole.excel_range})
     for field_name in (
         "title_range",
         "column_header_range",
@@ -672,7 +681,7 @@ class LunaVlmStructureDetectorModule(BaseModule):
             "user_prompt_template",
         ],
         raw_output=True,
-        version="5",
+        version="6",
         task=ModuleTaskPolicy(
             retries=2,
             retry_delay_seconds=5,

@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import sys
-import time
 from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -44,6 +43,7 @@ def main() -> None:
         MetricStatus,
     )
     from backend.domains.bi.infrastructure.postgres.store import PostgresBiStore
+    from scripts.sample_ingestion import ensure_sample_index
 
     directory = ROOT / "examples" / "bi"
     manifest = read_sample_manifest(directory)
@@ -66,40 +66,9 @@ def main() -> None:
                 ),
                 None,
             )
-            if index is None:
-                with path.open("rb") as file:
-                    response = client.post(
-                        base + "/data-sources/files/upload",
-                        files={
-                            "file": (
-                                path.name,
-                                file,
-                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            )
-                        },
-                    )
-                response.raise_for_status()
-                job = response.json().get("ingestion_job")
-                if job is None:
-                    raise RuntimeError(f"No ingestion job: {response.text}")
-                run_id = job["job_id"]
-                print(f"Indexing {path.name}: {run_id}", flush=True)
-                deadline = time.monotonic() + args.timeout
-                while time.monotonic() < deadline:
-                    response = client.get(base + "/data-sources/ingestion-jobs/" + run_id)
-                    response.raise_for_status()
-                    job = response.json()
-                    if job["status"] == "completed":
-                        index = job["index"]
-                        if index.get("luna_output", {}).get("failed_sheets"):
-                            raise RuntimeError(f"Partial sheet ingestion: {path.name}")
-                        break
-                    if job["status"] not in {"queued", "running"}:
-                        raise RuntimeError(f"Ingestion failed: {job.get('error')}")
-                    time.sleep(2)
-                else:
-                    raise TimeoutError(path.name)
-            assert index is not None
+            index = ensure_sample_index(
+                client, base, path, index, set(manifest["sheet_rows"]), args.timeout
+            )
             index_id = index["index_id"]
             response = client.put(
                 base + "/data-sources/indexes/" + index_id + "/company",

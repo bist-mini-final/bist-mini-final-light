@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import openpyxl
+import pytest
 
 from backend.domains.data_sources.infrastructure.spreadsheets.cell_visibility import (
     WorksheetVisibility,
@@ -18,11 +19,14 @@ from backend.domains.data_sources.infrastructure.spreadsheets.workbook_catalog i
     WorkbookCatalog,
 )
 from backend.platform.openai.responses import OpenAIResponseResult
+from modules.common.base_module import ModuleExecutionError
 from modules.structure.luna_vlm_structure_detector import (
+    CellBounds,
     LunaVlmStructureDetectorConfigDTO,
     LunaVlmStructureDetectorModule,
     SpreadsheetStructureOutput,
     VlmTableDecisionDTO,
+    _validated_sheet_decision,
 )
 
 
@@ -116,3 +120,23 @@ def test_table_validation_separates_overlapping_semantic_regions() -> None:
     assert ranges["data_range"] is not None
     assert ranges["data_range"].excel_range == "B5:F10"
     workbook.close()
+
+
+def test_title_above_table_is_included_without_changing_data_coordinates() -> None:
+    decision = VlmTableDecisionDTO(
+        excel_range="A5:F8",
+        title_range="A2:A3",
+        column_header_range="B5:F5",
+        row_header_range="A6:A8",
+        data_range="B6:F8",
+    )
+    result = _validated_sheet_decision(decision, CellBounds(1, 8, 1, 6))
+    assert result.excel_range == "A2:F8"
+    assert result.data_range == "B6:F8"
+    assert result.column_header_range == "B5:F5"
+
+
+def test_title_outside_worksheet_is_still_rejected() -> None:
+    decision = VlmTableDecisionDTO(excel_range="A5:F8", title_range="A9:A10", data_range="B6:F8")
+    with pytest.raises(ModuleExecutionError):
+        _validated_sheet_decision(decision, CellBounds(1, 8, 1, 6))

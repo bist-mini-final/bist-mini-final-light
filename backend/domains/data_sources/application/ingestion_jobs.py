@@ -34,6 +34,7 @@ class IngestionRequest(BaseModel):
         min_length=1,
         description="data/source_files/ 내 대상 Excel 파일명",
     )
+    use_cache: bool = Field(default=True, description="부분 적재 재분석은 false로 지정")
     model: str = Field(
         default=DEFAULT_EMBEDDING_MODEL,
         description="문서 임베딩 모델 (기본값: text-embedding-3-small)",
@@ -130,7 +131,7 @@ class IngestionJobService:
             WorkflowExecutionRequest(
                 inputs=runtime_inputs,
                 config_overrides=config_overrides,
-                use_cache=True,
+                use_cache=request.use_cache,
             ),
         )
 
