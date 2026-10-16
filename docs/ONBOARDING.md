@@ -103,7 +103,7 @@ uv run python scripts/load_bi_samples.py --limit 1
 ```
 
 `Ready: Demo Amesoft`를 확인합니다. 데이터 소스에서 `01_amesoft.xlsx`를 찾습니다.
-챗봇에서 해당 인덱스를 선택해 2025년 매출을 물어보고 `Income Statement!F6`을 대조하세요.
+챗봇에서 `Demo Amesoft의 2025년 매출은 얼마인가요?`라고 질문하고 `Income Statement!F6`을 대조하세요.
 BI에서 Demo Amesoft를 선택합니다. 질문·기대값은 [SAMPLE_DATA.md](SAMPLE_DATA.md)에 있습니다.
 
 ```powershell

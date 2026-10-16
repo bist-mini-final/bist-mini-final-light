@@ -87,7 +87,7 @@ uv run python scripts/load_bi_samples.py --limit 1
 ```
 
 `Ready: Demo Amesoft (ready, 5 years)`를 확인합니다.
-데이터 소스와 BI에서 Demo Amesoft를 선택하세요. 챗봇에서 해당 인덱스를 선택해
+데이터 소스와 BI에서 Demo Amesoft를 확인하세요. 챗봇에서 기업명을 포함해
 `Demo Amesoft의 2025년 매출은 얼마인가요?`라고 질문합니다.
 기대값은 약 **13,698.602 USD 백만**, 근거는 `Income Statement!F6`입니다.
 

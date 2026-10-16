@@ -68,8 +68,8 @@ VLM 서버에는 GGUF와 대응하는 mmproj가 함께 필요합니다. 도구 �
 BGE-M3 서버는 `--embedding --pooling cls`로 실행합니다. 수동 실행 예:
 
 ```powershell
-.runtime/llama/bin/llama-server.exe -m models/Qwen3VL-4B-Instruct-Q4_K_M.gguf --mmproj models/mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf --alias qwen3-vl-4b --host 127.0.0.1 --port 8081 -ngl 99 -c 16384 --parallel 1 --jinja -fa on -ctk q8_0 -ctv q8_0
-.runtime/llama/bin/llama-server.exe -m models/bge-m3-Q8_0.gguf --alias bge-m3 --host 127.0.0.1 --port 8083 -ngl 99 -c 8192 --parallel 1 --embedding --pooling cls -b 8192 -ub 8192
+.runtime/llama/llama-server.exe -m models/Qwen3VL-4B-Instruct-Q4_K_M.gguf --mmproj models/mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf --alias qwen3-vl-4b --host 127.0.0.1 --port 8081 -ngl 99 -c 16384 --parallel 1 --jinja -fa on -ctk q8_0 -ctv q8_0
+.runtime/llama/llama-server.exe -m models/bge-m3-Q8_0.gguf --alias bge-m3 --host 127.0.0.1 --port 8083 -ngl 99 -c 8192 --parallel 1 --embedding --pooling cls -b 8192 -ub 8192
 ```
 
 각 서버 명령은 별도 터미널에서 실행합니다. 기존 PostgreSQL을 유지하려면 `LOCAL_POSTGRES_AUTOSTART=false`와 본인의 `PGVECTOR_URL`을 사용합니다.
