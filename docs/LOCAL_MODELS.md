@@ -39,6 +39,11 @@ DB는 루프백 주소에만 열리고 프로젝트 로컬 클러스터의 접�
 GPU 메모리가 부족하면 Qwen 컨텍스트 크기를 줄이거나 수동 서버 실행 설정을 조정하세요.
 자동 실행에서는 긴 사고 토큰 생성을 기본으로 끕니다. 이를 지원하는 모델에서 사고 모드를 사용하려면 `.env`에 `LLAMA_ARG_REASONING=on`을 지정하세요.
 
+GPU 없이 DB만 준비할 때는 `pwsh -File scripts/setup_local_windows.ps1 -DatabaseOnly`를 사용합니다.
+`-SkipModels`는 CUDA 바이너리는 설치하고 GGUF 다운로드만 생략합니다. 직접 모델 파일을 준비해야 합니다.
+설치기는 b11429 CUDA 12.4 파일의 SHA-256을 확인하고 실제 실행 파일 경로를 `.env`에 기록합니다.
+수동 명령의 경로는 설치한 `.env`의 `LLAMA_CPP_SERVER_PATH`와 대조하세요.
+
 ## 이미 실행 중인 llama.cpp 사용
 
 자동 실행을 끄고 본인의 서버 주소·별칭을 설정할 수 있습니다.
@@ -61,8 +66,8 @@ VLM 서버에는 GGUF와 대응하는 mmproj가 함께 필요합니다. 도구 �
 BGE-M3 서버는 `--embedding --pooling cls`로 실행합니다. 수동 실행 예:
 
 ```powershell
-.runtime/llama/llama-server.exe -m models/Qwen3VL-4B-Instruct-Q4_K_M.gguf --mmproj models/mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf --alias qwen3-vl-4b --host 127.0.0.1 --port 8081 -ngl 99 -c 16384 --parallel 1 --jinja -fa on -ctk q8_0 -ctv q8_0
-.runtime/llama/llama-server.exe -m models/bge-m3-Q8_0.gguf --alias bge-m3 --host 127.0.0.1 --port 8083 -ngl 99 -c 8192 --parallel 1 --embedding --pooling cls -b 8192 -ub 8192
+.runtime/llama/bin/llama-server.exe -m models/Qwen3VL-4B-Instruct-Q4_K_M.gguf --mmproj models/mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf --alias qwen3-vl-4b --host 127.0.0.1 --port 8081 -ngl 99 -c 16384 --parallel 1 --jinja -fa on -ctk q8_0 -ctv q8_0
+.runtime/llama/bin/llama-server.exe -m models/bge-m3-Q8_0.gguf --alias bge-m3 --host 127.0.0.1 --port 8083 -ngl 99 -c 8192 --parallel 1 --embedding --pooling cls -b 8192 -ub 8192
 ```
 
 각 서버 명령은 별도 터미널에서 실행합니다. 기존 PostgreSQL을 유지하려면 `LOCAL_POSTGRES_AUTOSTART=false`와 본인의 `PGVECTOR_URL`을 사용합니다.

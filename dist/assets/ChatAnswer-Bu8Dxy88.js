@@ -1,0 +1,9 @@
+import{j as g}from"./index-CNCOOIEC.js";import{M as h}from"./MarkdownAnswer-D2ek3Abr.js";import"./CellEvidenceModal-Cne4aAAt.js";import"./useDragPan-dyxwKRbI.js";import"./loader-circle-UGXJ4ix-.js";import"./plus-kHwupnWV.js";function d(t){return t.replace(/\\+\|/g,"|").split(`
+`).map(r=>u(r)).join(`
+`)}function u(t){if(!t.includes("|---"))return t;const n=t.indexOf("|---"),r=t.indexOf("|");if(r<0||r>=n)return t;const e=t.slice(r,n).split("|").map(a=>a.trim()).filter(Boolean),o=t.slice(n).split("|").map(a=>a.trim()).filter(Boolean);if(e.length<3||o.length<e.length)return t;const s=o.slice(0,e.length);if(!s.every(a=>/^:?-{3,}:?$/.test(a)))return t;const i=o.slice(e.length),l=Math.floor(i.length/e.length);if(!l)return t;const p=Array.from({length:l},(a,f)=>i.slice(f*e.length,(f+1)*e.length)),c=[`| ${e.join(" | ")} |`,`| ${s.join(" | ")} |`,...p.map(a=>`| ${a.join(" | ")} |`)].join(`
+`),m=i.slice(l*e.length).join(" | ").trim();return`${t.slice(0,r)}${c}${m?`
+${m}`:""}`}function $(t){const n=t.split(`
+`);return n.map((r,e)=>{const o=n[e+1]??"";if(!r.trimStart().startsWith("|")||!o.trimStart().startsWith("|"))return r;const s=r.match(/20\d{2}-\d{2}-\d{2}/g)??[],i=o.split("|").filter(c=>c.trim()),l=r.split("|").map(c=>c.trim()).filter(Boolean);if(s.length<2||i.length!==s.length+1||l.length===i.length)return r;const p=l[0];return p?`| ${[p,...s].join(" | ")} |`:r}).join(`
+`)}function j(t){return $(d(t)).replace(new RegExp("(?<![A-Za-z])NA(?![A-Za-z])\\s*로?\\s*근거가 부족(?:합니다|해요)?","gi"),"확인 가능한 근거가 부족해 요약에서 제외했습니다").replace(new RegExp("(?<![A-Za-z])NA(?![A-Za-z])\\s*로 표시되어 있어","gi"),"확인 가능한 값이 없어").replace(/\s*[;；]\s*(?=(?:\*\*)?[^\n]*확인 가능한 근거가 부족)/g,`
+
+`).replace(/(\d{4})~~(\d{4})/g,"$1–$2").replace(/\\([*_`[\].~])/g,"$1").replace(/(\*\*[^*\n]+?\*\*)(?=[가-힣])/g,"$1 ")}function M({markdown:t,evidence:n}){return g.jsx(h,{markdown:j(t),evidence:n})}export{M as ChatAnswer};

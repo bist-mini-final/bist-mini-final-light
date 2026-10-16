@@ -24,7 +24,9 @@ def test_snapshot_store_error_survives_context_manager_traceback_assignment() ->
 
 @pytest.mark.skipif(not os.getenv("INTEGRATION_DATABASE_URL"), reason="requires local PostgreSQL")
 def test_local_bootstrap_creates_scoped_snapshot_storage_idempotently(monkeypatch) -> None:
-    database_url = os.environ["INTEGRATION_DATABASE_URL"]
+    database_url = os.environ["INTEGRATION_DATABASE_URL"].replace(
+        "postgresql+psycopg://", "postgresql://"
+    )
     namespace = "test_snapshots_" + uuid4().hex
     with psycopg2.connect(database_url) as connection:
         with connection.cursor() as cursor:

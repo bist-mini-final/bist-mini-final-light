@@ -18,6 +18,11 @@ sys.path.insert(0, str(ROOT))
 
 
 def main() -> None:
+    """Index checked-in fixtures and publish cell-verified BI demo snapshots.
+
+    Requires the running local API and the same database configuration. Reuses
+    matching workbook indexes; ordinary RAG metric extraction remains separate.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--api-url", default="http://127.0.0.1:8765")
     parser.add_argument("--limit", type=int, default=18)

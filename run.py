@@ -8,6 +8,11 @@ import uvicorn
 
 
 def main() -> None:
+    """Load .env, start owned local services, serve port 8765, and clean up on exit.
+
+    Use this entry point for the automatic PostgreSQL/model profile. Direct
+    uvicorn execution starts the API/workers but does not own those services.
+    """
     root = Path(__file__).resolve().parent
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     logging.getLogger("httpx").setLevel(logging.WARNING)

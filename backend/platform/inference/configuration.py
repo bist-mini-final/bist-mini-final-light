@@ -14,6 +14,7 @@ ENV_FILE = Path(__file__).resolve().parents[3] / ".env"
 
 
 class ModelSettings(BaseModel):
+    """Non-secret role settings; endpoint aliases must match the running server."""
     model_config = ConfigDict(extra="forbid")
 
     llm_provider: Literal["openai", "llamacpp"] = "openai"
@@ -43,15 +44,18 @@ class ModelSettings(BaseModel):
 
     @classmethod
     def from_environment(cls) -> ModelSettings:
+        """Read effective runtime settings through the shared environment resolver."""
         values = {key: project_env_value(key.upper()) for key in cls.model_fields}
         return cls.model_validate({key: value for key, value in values.items() if value is not None})
 
     @classmethod
     def from_file(cls, path: Path = ENV_FILE) -> ModelSettings:
+        """Read a specific .env for editing without returning its API key."""
         values = dotenv_values(path)
         return cls.model_validate({key: values[key.upper()] for key in cls.model_fields if values.get(key.upper()) is not None})
 
     def save(self, path: Path = ENV_FILE) -> None:
+        """Update known non-secret fields while preserving unrelated keys."""
         path.parent.mkdir(parents=True, exist_ok=True)
         path.touch(exist_ok=True)
         for key, value in self.model_dump().items():
