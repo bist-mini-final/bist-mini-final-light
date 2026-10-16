@@ -16,7 +16,7 @@ def main() -> None:
     proxies. Interrupted .partial files are resumed when supported. This function
     downloads files only: it does not start model servers or alter .env.
     """
-    from scripts.download_runtime import download_file
+    from scripts.download_model_ranges import download_model
 
     destination = ROOT / "models"
     jobs = [
@@ -24,27 +24,31 @@ def main() -> None:
             "Qwen/Qwen3-VL-4B-Instruct-GGUF",
             "Qwen3VL-4B-Instruct-Q4_K_M.gguf",
             "66358cb18bb6b3b1b6675aa412c7a88ef01d228f481184d13668e5201c730a0a",
+            2497281664,
         ),
         (
             "Qwen/Qwen3-VL-4B-Instruct-GGUF",
             "mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf",
             "30ba2c7dd3127a4561b6cba9d13d0f711c91bdb38742e2f56d73c8cb596bd06d",
+            453974304,
         ),
         (
             "gpustack/bge-m3-GGUF",
             "bge-m3-Q8_0.gguf",
             "950f4a8e5e19477a6d3c26d2f162233c20002c601f75e4b002e3239997821167",
+            634553760,
         ),
     ]
     with ThreadPoolExecutor(max_workers=3) as pool:
         futures = [
             pool.submit(
-                download_file,
+                download_model,
                 f"https://huggingface.co/{repo}/resolve/main/{filename}",
                 destination / filename,
                 digest,
+                size,
             )
-            for repo, filename, digest in jobs
+            for repo, filename, digest, size in jobs
         ]
         for future in futures:
             print(future.result(), flush=True)
